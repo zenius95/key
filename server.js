@@ -4,6 +4,7 @@ const path = require('path');
 const { uid } = require('uid');
 require('dotenv').config();
 const { sequelize, License } = require('./models/License');
+const { signData } = require('./utils/crypto');
 const { Op } = require('sequelize');
 
 const app = express();
@@ -82,6 +83,110 @@ app.get('/license/:key', async (req, res) => {
                 expiry_date: license.expiry_date
             }
         });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Server Error' });
+    }
+});
+
+// API: Verify License with HWID Binding
+app.post('/api/verify', async (req, res) => {
+    try {
+        const { key, hwid } = req.body;
+
+        if (!key || !hwid) {
+            return res.status(400).json({ success: false, message: 'Missing key or hwid' });
+        }
+
+        let license = await License.findOne({ where: { key } });
+
+        if (!license) {
+            return res.json({ success: false, message: 'Invalid Key' });
+        }
+
+        // Check Status & Expiry
+        if (license.status === 'inactive') {
+            return res.json({ success: false, message: 'License Inactive' });
+        }
+
+        if (license.expiry_date) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const expiry = new Date(license.expiry_date);
+            if (expiry < today) {
+                // Auto-update status if needed, though usually we just deny
+                if (license.status !== 'inactive') {
+                    await license.update({ status: 'inactive' });
+                }
+                return res.json({ success: false, message: 'License Expired' });
+            }
+        }
+
+        // HWID Logic
+        if (!license.hwid) {
+            // First time use, bind HWID
+            await license.update({ hwid });
+        } else if (license.hwid !== hwid) {
+            return res.json({ success: false, message: 'Hardware Mismatch' });
+        }
+
+        // Payload Construction
+        const payload = {
+            status: 'valid',
+            expiry: license.expiry_date,
+            client: license.client_name,
+            hwid: license.hwid
+        };
+
+        const signature = signData(payload);
+
+        res.json({
+            success: true,
+            data: payload,
+            signature
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Server Error' });
+    }
+});
+
+// API: Reset HWID
+app.post('/api/reset-hwid', async (req, res) => {
+    try {
+        const { key } = req.body;
+        const license = await License.findOne({ where: { key } });
+
+        if (!license) {
+            return res.status(404).json({ success: false, message: 'License not found' });
+        }
+
+        const MAX_RESETS = 5;
+        if (license.reset_count >= MAX_RESETS) {
+            return res.status(403).json({ success: false, message: 'Max resets reached' });
+        }
+
+        // Cooldown check (30 days)
+        if (license.last_reset_at) {
+            const now = new Date();
+            const lastReset = new Date(license.last_reset_at);
+            const diffTime = Math.abs(now - lastReset);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays < 30) {
+                return res.status(403).json({ success: false, message: `Cooldown active. Try again in ${30 - diffDays} days.` });
+            }
+        }
+
+        await license.update({
+            hwid: null,
+            reset_count: license.reset_count + 1,
+            last_reset_at: new Date()
+        });
+
+        res.json({ success: true, message: 'HWID Reset Successful' });
+
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, message: 'Server Error' });

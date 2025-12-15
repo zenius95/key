@@ -25,6 +25,18 @@ const License = sequelize.define('License', {
     expiry_date: {
         type: DataTypes.DATEONLY, // Chỉ cần ngày
         allowNull: true
+    },
+    hwid: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    reset_count: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+    },
+    last_reset_at: {
+        type: DataTypes.DATE,
+        allowNull: true
     }
 });
 
