@@ -26,7 +26,7 @@ db.sequelize = sequelize;
 
 // Import Models
 // Import Models
-db.License = require('./License')(sequelize, DataTypes);
+// db.License = require('./License')(sequelize, DataTypes);
 db.User = require('./User')(sequelize, DataTypes);
 db.Product = require('./Product')(sequelize, DataTypes); // Add Product
 db.Package = require('./Package')(sequelize, DataTypes);

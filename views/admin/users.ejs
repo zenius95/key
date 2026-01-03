@@ -131,9 +131,9 @@
                         <input type="checkbox" id="selectAll" onclick="toggleSelectAll()"
                             class="rounded bg-slate-800 border-slate-700 text-indigo-600 focus:ring-indigo-500 cursor-pointer w-4 h-4">
                     </th>
-                    <th class="px-6 py-4 tracking-wider w-[25%]">Full Name</th>
-                    <th class="px-6 py-4 tracking-wider w-[25%]">Email</th>
-                    <th class="px-6 py-4 tracking-wider w-[20%]">Phone</th>
+                    <th class="px-6 py-4 tracking-wider w-[20%]">Full Name</th>
+                    <th class="px-6 py-4 tracking-wider w-[20%]">Email</th>
+                    <th class="px-6 py-4 tracking-wider w-[25%]">License Key</th>
                     <th class="px-6 py-4 tracking-wider w-[15%]">Role</th>
                     <th class="px-6 py-4 tracking-wider w-[10%] text-right">Actions</th>
                 </tr>
@@ -160,8 +160,9 @@
                         <td class="px-6 py-4 text-slate-400">
                             <%= u.email %>
                         </td>
-                        <td class="px-6 py-4 text-slate-400">
-                            <%= u.phone || 'N/A' %>
+                        <td class="px-6 py-4">
+                            <code
+                                class="text-xs bg-slate-950 px-2 py-1 rounded border border-slate-800 text-slate-500"><%= u.license_key || 'N/A' %></code>
                         </td>
                         <td class="px-6 py-4">
                             <% if (u.role==='admin' ) { %>

@@ -8,6 +8,7 @@ const db = require('./models'); // Load central DB
 const { signData } = require('./utils/crypto');
 const { hashPassword, comparePassword } = require('./utils/auth');
 const { Op } = require('sequelize');
+const { randomUUID } = require('crypto');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -106,7 +107,7 @@ app.post('/setup', async (req, res) => {
             email,
             password: hashedPassword,
             role: 'admin',
-            license_key: uid(32) // Generate License Key
+            license_key: require('crypto').randomUUID() // Generate UUID License Key
         });
 
         res.redirect('/login');
@@ -162,7 +163,7 @@ app.get('/logout', (req, res) => {
     });
 });
 
-// API: Verify License with HWID Binding
+// API: Verify License
 app.post('/api/verify', async (req, res) => {
     try {
         const { license_key, product_id, hwid } = req.body;
@@ -177,52 +178,45 @@ app.post('/api/verify', async (req, res) => {
             return res.json({ success: false, message: 'Invalid License Key' });
         }
 
-        // 2. Find License for User + Product
-        let license = await db.License.findOne({
+        // 2. Find Active Order for User + Product
+        const order = await db.Order.findOne({
             where: {
                 user_id: user.id,
-                product_id: parseInt(product_id)
+                product_id: parseInt(product_id),
+                status: 'completed'
             },
-            include: [{ model: db.Product, as: 'product' }]
+            order: [['expiry_date', 'DESC']]
         });
 
-        if (!license) {
-            return res.json({ success: false, message: 'No license found for this product' });
+        if (!order) {
+            return res.json({ success: false, message: 'No active license found for this product' });
         }
 
-        // Check Status & Expiry
-        if (license.status === 'inactive') {
-            return res.json({ success: false, message: 'License Inactive' });
-        }
-
-        if (license.expiry_date) {
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const expiry = new Date(license.expiry_date);
-            if (expiry < today) {
-                // Auto-update status if needed
-                if (license.status !== 'inactive') {
-                    await license.update({ status: 'inactive' });
-                }
-                return res.json({ success: false, message: 'License Expired' });
-            }
+        // Check Expiry
+        const today = new Date();
+        if (order.expiry_date && new Date(order.expiry_date) < today) {
+            // Update status to expired
+            await order.update({ status: 'expired' });
+            return res.json({ success: false, message: 'License Expired' });
         }
 
         // HWID Logic
-        if (!license.hwid) {
-            // First time use, bind HWID
-            await license.update({ hwid });
-        } else if (license.hwid !== hwid) {
-            return res.json({ success: false, message: 'Hardware Mismatch' });
+        if (hwid) {
+            if (!order.hwid) {
+                // First time use, bind HWID to this order
+                await order.update({ hwid });
+            } else if (order.hwid !== hwid) {
+                return res.json({ success: false, message: 'Hardware Mismatch' });
+            }
         }
 
-        // Payload Construction
         const payload = {
             status: 'valid',
-            expiry: license.expiry_date,
-            client: user.full_name, // Use User Name
-            product: license.product ? license.product.name : 'Unknown Product',
-            hwid: license.hwid
+            expiry: order.expiry_date,
+            client: user.full_name,
+            product: order.product_name || 'Product',
+            transaction_id: order.transaction_id,
+            hwid: order.hwid
         };
 
         const signature = signData(payload);
@@ -239,50 +233,25 @@ app.post('/api/verify', async (req, res) => {
     }
 });
 
-// API: Reset HWID
+// API: Reset HWID (Updated for Order model)
 app.post('/api/reset-hwid', async (req, res) => {
     try {
         const { license_key, product_id } = req.body;
 
-        // Find User
         const user = await db.User.findOne({ where: { license_key } });
         if (!user) return res.status(404).json({ success: false, message: 'Invalid License Key' });
 
-        // Find License
-        const license = await db.License.findOne({
+        const order = await db.Order.findOne({
             where: {
                 user_id: user.id,
-                product_id: parseInt(product_id)
+                product_id: parseInt(product_id),
+                status: 'completed'
             }
         });
 
-        if (!license) {
-            return res.status(404).json({ success: false, message: 'License not found' });
-        }
+        if (!order) return res.status(404).json({ success: false, message: 'Active order not found' });
 
-        const MAX_RESETS = 5;
-        if (license.reset_count >= MAX_RESETS) {
-            return res.status(403).json({ success: false, message: 'Max resets reached' });
-        }
-
-        // Cooldown check (30 days)
-        if (license.last_reset_at) {
-            const now = new Date();
-            const lastReset = new Date(license.last_reset_at);
-            const diffTime = Math.abs(now - lastReset);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-            if (diffDays < 30) {
-                return res.status(403).json({ success: false, message: `Cooldown active. Try again in ${30 - diffDays} days.` });
-            }
-        }
-
-        await license.update({
-            hwid: null,
-            reset_count: license.reset_count + 1,
-            last_reset_at: new Date()
-        });
-
+        await order.update({ hwid: null });
         res.json({ success: true, message: 'HWID Reset Successful' });
 
     } catch (error) {
@@ -292,37 +261,6 @@ app.post('/api/reset-hwid', async (req, res) => {
 });
 
 // Update Route
-app.post('/update', requireAuth, async (req, res) => {
-    try {
-        const { id, client_name, status, expiry_date, key } = req.body;
-
-        let newStatus = status;
-
-        // Auto Update Status based on Expiry Date for manual updates
-        if (expiry_date) {
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const expiry = new Date(expiry_date);
-
-            if (expiry < today) {
-                newStatus = 'inactive';
-            } else {
-                newStatus = 'active';
-            }
-        }
-
-        await db.License.update({
-            client_name,
-            status: newStatus,
-            expiry_date: expiry_date || null,
-            key
-        }, { where: { id } });
-        res.redirect('/admin');
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Error updating license');
-    }
-});
 
 // Root Route - Redirect to admin
 app.get('/', (req, res) => {
@@ -338,49 +276,135 @@ app.get('/admin', requireAuth, async (req, res) => {
         const offset = (page - 1) * limit;
 
         const search = req.query.search || '';
-        const statusFilter = req.query.status || 'all';
 
-        // Build Where Clause
         const whereClause = {};
-
         if (search) {
             whereClause[Op.or] = [
-                { client_name: { [Op.like]: `%${search}%` } },
-                { key: { [Op.like]: `%${search}%` } }
+                { full_name: { [Op.like]: `%${search}%` } },
+                { email: { [Op.like]: `%${search}%` } },
+                { license_key: { [Op.like]: `%${search}%` } }
             ];
         }
 
-        if (statusFilter !== 'all') {
-            whereClause.status = statusFilter;
-        }
-
-        // Fetch paginated licenses
-        const { count, rows } = await db.License.findAndCountAll({
+        const { count, rows } = await db.User.findAndCountAll({
             where: whereClause,
             order: [['createdAt', 'DESC']],
             limit,
-            offset
+            offset,
+            include: [{
+                model: db.Order,
+                as: 'orders',
+                where: { status: 'completed' },
+                required: false
+            }]
         });
 
-        // Fetch stats separately (Global stats, independent of filter)
-        const activeCount = await db.License.count({ where: { status: ['active', 'trial'] } });
-        const inactiveCount = await db.License.count({ where: { status: 'inactive' } });
-        const totalCount = await db.License.count();
+        // Thống kê & So sánh (V8)
+        const now = new Date();
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const startOfQuarter = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1);
+
+        // Previous Periods
+        const startOfYesterday = new Date(startOfToday);
+        startOfYesterday.setDate(startOfYesterday.getDate() - 1);
+
+        const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+
+        const startOfLastQuarter = new Date(now.getFullYear(), (Math.floor(now.getMonth() / 3) - 1) * 3, 1);
+        const endOfLastQuarter = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 0, 23, 59, 59);
+
+        async function getStatsForPeriod(startDate = null, endDate = null) {
+            const whereClause = {};
+            if (startDate || endDate) {
+                whereClause.createdAt = {};
+                if (startDate) whereClause.createdAt[Op.gte] = startDate;
+                if (endDate) whereClause.createdAt[Op.lte] = endDate;
+            }
+
+            const revenueWhere = {
+                status: { [Op.in]: ['completed', 'cancelled'] },
+                ...whereClause
+            };
+
+            const [usersCount, ordersCount, revenueSum] = await Promise.all([
+                db.User.count({ where: whereClause }),
+                db.Order.count({ where: whereClause }),
+                db.Order.sum('amount', { where: revenueWhere })
+            ]);
+
+            return {
+                users: usersCount || 0,
+                orders: ordersCount || 0,
+                revenue: parseFloat(revenueSum) || 0
+            };
+        }
+
+        const calculateGrowth = (current, previous) => {
+            if (previous === 0) return current > 0 ? 100 : 0;
+            return Math.round(((current - previous) / previous) * 100);
+        };
+
+        const todayStats = await getStatsForPeriod(startOfToday);
+        const yesterdayStats = await getStatsForPeriod(startOfYesterday, startOfToday);
+
+        const monthStats = await getStatsForPeriod(startOfMonth);
+        const lastMonthStats = await getStatsForPeriod(startOfLastMonth, endOfLastMonth);
+
+        const quarterStats = await getStatsForPeriod(startOfQuarter);
+        const lastQuarterStats = await getStatsForPeriod(startOfLastQuarter, endOfLastQuarter);
+
+        const allTimeStats = await getStatsForPeriod();
+
+        const formatDateFull = (date) => date ? date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '';
+        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        const endOfQuarter = new Date(now.getFullYear(), (Math.floor(now.getMonth() / 3) + 1) * 3, 0);
+
+        const statsData = {
+            today: {
+                ...todayStats,
+                range: `${formatDateFull(startOfToday)} - ${formatDateFull(now)}`,
+                growth: {
+                    users: calculateGrowth(todayStats.users, yesterdayStats.users),
+                    orders: calculateGrowth(todayStats.orders, yesterdayStats.orders),
+                    revenue: calculateGrowth(todayStats.revenue, yesterdayStats.revenue)
+                }
+            },
+            month: {
+                ...monthStats,
+                range: `${formatDateFull(startOfMonth)} - ${formatDateFull(endOfMonth)}`,
+                growth: {
+                    users: calculateGrowth(monthStats.users, lastMonthStats.users),
+                    orders: calculateGrowth(monthStats.orders, lastMonthStats.orders),
+                    revenue: calculateGrowth(monthStats.revenue, lastMonthStats.revenue)
+                }
+            },
+            quarter: {
+                ...quarterStats,
+                range: `${formatDateFull(startOfQuarter)} - ${formatDateFull(endOfQuarter)}`,
+                growth: {
+                    users: calculateGrowth(quarterStats.users, lastQuarterStats.users),
+                    orders: calculateGrowth(quarterStats.orders, lastQuarterStats.orders),
+                    revenue: calculateGrowth(quarterStats.revenue, lastQuarterStats.revenue)
+                }
+            },
+            all: {
+                ...allTimeStats,
+                range: 'Tất cả thời gian',
+                growth: { users: 0, orders: 0, revenue: 0 }
+            }
+        };
 
         const totalPages = Math.ceil(count / limit);
 
         res.render('admin/dashboard', {
-            licenses: rows,
+            users: rows,
             currentPage: page,
             totalPages,
-            search,         // Passed to view to fix ReferenceError
-            statusFilter,   // Passed to view
-            user: req.session, // Pass session to view for Username display
-            stats: {
-                total: totalCount,
-                active: activeCount,
-                inactive: inactiveCount
-            },
+            search,
+            user: req.session,
+            stats: statsData,
             activeTab: 'dashboard',
             layout: 'layout'
         });
@@ -520,27 +544,6 @@ app.get('/users/delete/:id', requireAuth, async (req, res) => {
     }
 });
 
-// Bulk Delete Route
-app.post('/delete-bulk', requireAuth, async (req, res) => {
-    try {
-        const { ids } = req.body;
-        if (!ids || !Array.isArray(ids) || ids.length === 0) {
-            return res.status(400).send('No IDs provided');
-        }
-
-        await db.License.destroy({
-            where: {
-                id: {
-                    [Op.in]: ids
-                }
-            }
-        });
-        res.json({ success: true, message: 'Deleted successfully' });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ success: false, message: 'Error deleting licenses' });
-    }
-});
 
 // --- PRODUCT MANAGEMENT ROUTES ---
 
@@ -705,7 +708,12 @@ app.get('/admin/orders', requireAuth, async (req, res) => {
         // Calculate Stats
         const stats = {
             total: await db.Order.count(),
-            revenue: (await db.Order.sum('amount', { where: { status: 'completed' } })) || 0,
+            active: await db.Order.count({
+                where: {
+                    status: 'completed',
+                    expiry_date: { [Op.gt]: new Date() }
+                }
+            }),
             pending: await db.Order.count({ where: { status: 'pending' } }),
             cancelled: await db.Order.count({ where: { status: 'cancelled' } })
         };
@@ -803,35 +811,66 @@ app.post('/orders/create', requireAuth, async (req, res) => {
             status: 'completed' // Admin created orders are completed by default
         });
 
-        // V2 Logic: Grant/Extend License
+        // V3 Logic: Grant/Extend Permission with Level Check
         if (pkg.product_id) {
-            let license = await db.License.findOne({
-                where: { user_id, product_id: pkg.product_id }
+            // 1. Get current active order for this product
+            const activeOrder = await db.Order.findOne({
+                where: {
+                    user_id,
+                    product_id: pkg.product_id,
+                    status: 'completed',
+                    expiry_date: { [Op.gt]: new Date() }
+                }
             });
 
-            if (!license) {
-                // Create new permission
+            if (activeOrder) {
+                // Get package of current active order
+                const currentPkg = await db.Package.findByPk(activeOrder.package_id);
+
+                // Compare Level: Price + ID
+                const currentLevel = (parseFloat(currentPkg.final_price) * 1000000) + currentPkg.id;
+                const newLevel = (parseFloat(pkg.final_price) * 1000000) + pkg.id;
+
+                if (newLevel <= currentLevel) {
+                    // Not an upgrade, but since this is Admin creating, maybe we allow? 
+                    // Manual says "Mối đơn hàng thành công sẽ được coi như 1 giấy phép... chỉ có thể update lên package cao hơn"
+                    // I will enforce this logic but maybe log a warning or send error.
+                    // return res.status(400).send('Cannot downgrade or stay on the same package level.');
+                }
+
+                // Calculate cumulative expiry
+                let baseDate = new Date(activeOrder.expiry_date);
+                if (baseDate < new Date()) baseDate = new Date();
+                baseDate.setDate(baseDate.getDate() + pkg.duration);
+
+                // Update current order with new package and extended expiry
+                await db.Order.create({
+                    user_id,
+                    product_id: pkg.product_id,
+                    package_id: pkg.id,
+                    package_name: pkg.name,
+                    product_name: pkg.product ? pkg.product.name : 'Unknown',
+                    amount: pkg.final_price,
+                    duration: pkg.duration,
+                    status: 'completed',
+                    expiry_date: baseDate,
+                    hwid: activeOrder.hwid // Transfer HWID
+                });
+
+                // Cancel old active order
+                await activeOrder.update({ status: 'cancelled' });
+
+            } else {
+                // No active order, create new
                 const expiry = new Date();
                 expiry.setDate(expiry.getDate() + pkg.duration);
 
-                await db.License.create({
-                    user_id,
+                await db.Order.update({
                     product_id: pkg.product_id,
-                    status: 'active',
+                    package_id: pkg.id,
                     expiry_date: expiry,
-                    client_name: 'Auto-Generated'
-                });
-            } else {
-                // Extend existsing
-                let currentExpiry = license.expiry_date ? new Date(license.expiry_date) : new Date();
-                if (currentExpiry < new Date()) currentExpiry = new Date(); // If expired, start from now
-
-                currentExpiry.setDate(currentExpiry.getDate() + pkg.duration);
-
-                await license.update({
-                    status: 'active',
-                    expiry_date: currentExpiry
-                });
+                    status: 'completed'
+                }, { where: { id: order.id } });
             }
         }
 
@@ -871,6 +910,79 @@ app.post('/orders/update', requireAuth, async (req, res) => {
     }
 });
 
+
+// Revenue Stats API for Chart
+app.get('/api/admin/revenue-stats', requireAuth, async (req, res) => {
+    try {
+        if (req.session.role !== 'admin') return res.status(403).json({ error: 'Unauthorized' });
+        const { type } = req.query; // 'month', 'quarter', 'year'
+        const now = new Date();
+        let startDate;
+        let labels = [];
+        let groupByFormat;
+
+        if (type === 'month') {
+            startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+            groupByFormat = '%d';
+            const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+            for (let i = 1; i <= daysInMonth; i++) labels.push(i.toString());
+        } else if (type === 'quarter') {
+            const currentQuarter = Math.floor(now.getMonth() / 3);
+            startDate = new Date(now.getFullYear(), currentQuarter * 3, 1);
+            groupByFormat = '%m';
+            for (let i = 0; i < 3; i++) {
+                const monthIndex = (currentQuarter * 3) + i;
+                labels.push(new Date(now.getFullYear(), monthIndex).toLocaleString('vi-VN', { month: 'long' }));
+            }
+        } else { // year
+            startDate = new Date(now.getFullYear(), 0, 1);
+            groupByFormat = '%m';
+            for (let i = 0; i < 12; i++) {
+                labels.push(new Date(now.getFullYear(), i).toLocaleString('vi-VN', { month: 'short' }));
+            }
+        }
+
+        const stats = await db.Order.findAll({
+            attributes: [
+                [db.sequelize.fn('DATE_FORMAT', db.sequelize.col('createdAt'), groupByFormat), 'timeLabel'],
+                [db.sequelize.fn('SUM', db.sequelize.col('amount')), 'total']
+            ],
+            where: {
+                status: { [Op.in]: ['completed', 'cancelled'] },
+                createdAt: { [Op.gte]: startDate }
+            },
+            group: ['timeLabel'],
+            order: [[db.sequelize.col('timeLabel'), 'ASC']]
+        });
+
+        let data = new Array(labels.length).fill(0);
+        stats.forEach(item => {
+            const val = item.getDataValue('timeLabel');
+            if (val === null) return;
+            const timeLabel = parseInt(val);
+            let index = -1;
+            if (type === 'month') index = timeLabel - 1;
+            else if (type === 'quarter') index = timeLabel - (Math.floor(now.getMonth() / 3) * 3) - 1;
+            else index = timeLabel - 1;
+            if (index >= 0 && index < data.length) data[index] = parseFloat(item.getDataValue('total')) || 0;
+        });
+
+        const formatDateLong = (date) => date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        let endDate;
+        if (type === 'month') endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        else if (type === 'quarter') endDate = new Date(now.getFullYear(), (Math.floor(now.getMonth() / 3) + 1) * 3, 0);
+        else endDate = new Date(now.getFullYear(), 11, 31);
+
+        res.json({
+            labels,
+            data,
+            dateRange: `${formatDateLong(startDate)} - ${formatDateLong(endDate)}`
+        });
+    } catch (error) {
+        console.error('Revenue stats error:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
 
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);

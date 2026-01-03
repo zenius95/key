@@ -5,14 +5,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>License Manager Pro - Admin</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@100;300;400;500;700;900&family=Inter:wght@100;300;400;500;700;900&display=swap"
+        rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'], },
+                    fontFamily: { sans: ['Be Vietnam Pro', 'Inter', 'sans-serif'], },
                     colors: { slate: { 850: '#151f32', 900: '#0f172a', 950: '#020617', } }
                 }
             }
@@ -31,16 +35,16 @@
                         class="bg-indigo-600 w-8 h-8 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/30">
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z">
+                                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
                             </path>
                         </svg>
                     </div>
-                    <span class="text-lg font-bold text-white tracking-tight">License Manager</span>
+                    <span class="text-lg font-bold text-white tracking-tight">Admin Console</span>
                 </div>
                 <!-- Links -->
                 <div class="flex items-center gap-4">
                     <div class="text-xs text-slate-400 bg-slate-800 px-3 py-1 rounded-full border border-slate-700">
-                        v1.2.0</div>
+                        v2.0.0</div>
                     <a href="/logout"
                         class="text-sm text-slate-400 hover:text-white transition flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-slate-800">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -59,7 +63,7 @@
         <!-- We use a local variable 'activeTab' passed from the route render to determine state -->
         <div class="flex space-x-4 mb-6 border-b border-slate-800">
             <a href="/admin"
-                class="px-4 py-2 text-sm font-medium transition <%= (typeof activeTab !== 'undefined' && activeTab === 'dashboard') ? 'text-indigo-400 border-b-2 border-indigo-500' : 'text-slate-400 hover:text-slate-200' %>">Licenses</a>
+                class="px-4 py-2 text-sm font-medium transition <%= (typeof activeTab !== 'undefined' && activeTab === 'dashboard') ? 'text-indigo-400 border-b-2 border-indigo-500' : 'text-slate-400 hover:text-slate-200' %>">Dashboard</a>
             <a href="/admin/users"
                 class="px-4 py-2 text-sm font-medium transition <%= (typeof activeTab !== 'undefined' && activeTab === 'users') ? 'text-indigo-400 border-b-2 border-indigo-500' : 'text-slate-400 hover:text-slate-200' %>">Users</a>
             <a href="/admin/products"

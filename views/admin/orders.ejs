@@ -1,19 +1,18 @@
 <!-- Stats Row -->
 <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-    <!-- Revenue -->
+    <!-- Active Orders -->
     <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-sm hover:border-slate-700 transition group">
         <div class="flex justify-between items-start">
             <div>
-                <p class="text-slate-500 text-sm font-medium mb-1">Total Revenue</p>
-                <h3 class="text-2xl font-bold text-emerald-400 group-hover:text-emerald-300 transition">
-                    <%= new Intl.NumberFormat('vi-VN', { style: 'currency' , currency: 'VND' }).format(stats.revenue) %>
+                <p class="text-slate-500 text-sm font-medium mb-1">Active Orders</p>
+                <h3 class="text-2xl font-bold text-blue-400 group-hover:text-blue-300 transition">
+                    <%= stats.active %>
                 </h3>
             </div>
-            <div class="p-2 bg-emerald-500/10 rounded-lg text-emerald-500 group-hover:bg-emerald-500/20 transition">
+            <div class="p-2 bg-blue-500/10 rounded-lg text-blue-500 group-hover:bg-blue-500/20 transition">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
-                    </path>
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
             </div>
         </div>
@@ -104,6 +103,8 @@
                     ? 'selected' : '' %>>Completed</option>
                 <option value="cancelled" class="bg-slate-950 text-rose-400" <%=statusFilter==='cancelled' ? 'selected'
                     : '' %>>Cancelled</option>
+                <option value="expired" class="bg-slate-950 text-slate-400" <%=statusFilter==='expired' ? 'selected'
+                    : '' %>>Expired</option>
             </select>
         </div>
 
@@ -170,7 +171,9 @@
                             <th class="px-6 py-4 tracking-wider">Package/Product</th>
                             <th class="px-6 py-4 text-center tracking-wider">Amount</th>
                             <th class="px-6 py-4 text-center tracking-wider">Status</th>
-                            <th class="px-6 py-4 text-right tracking-wider">Date</th>
+                            <th class="px-6 py-4 tracking-wider">HWID</th>
+                            <th class="px-6 py-4 tracking-wider">Created At</th>
+                            <th class="px-6 py-4 text-right tracking-wider">Expiry Date</th>
                             <% if (user.role==='admin' ) { %>
                                 <th class="px-6 py-4 text-right tracking-wider">Actions</th>
                                 <% } %>
@@ -217,15 +220,29 @@
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium 
                                     <%= order.status === 'completed' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 
                                        (order.status === 'pending' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 
-                                       'bg-rose-500/10 text-rose-400 border border-rose-500/20') %>">
+                                       (order.status === 'expired' ? 'bg-slate-700/50 text-slate-400 border border-slate-700' :
+                                       'bg-rose-500/10 text-rose-400 border border-rose-500/20')) %>">
                                         <%= order.status.charAt(0).toUpperCase() + order.status.slice(1) %>
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 text-right text-slate-400 text-xs">
+                                <td class="px-6 py-4">
+                                    <code class="text-[10px] text-slate-500 font-mono"><%= order.hwid || '-' %></code>
+                                </td>
+                                <td class="px-6 py-4 text-slate-500 text-xs">
                                     <%= new Date(order.createdAt).toLocaleDateString('vi-VN') %>
-                                        <div class="text-slate-600">
-                                            <%= new Date(order.createdAt).toLocaleTimeString('vi-VN') %>
+                                        <div class="text-[10px] text-slate-600">
+                                            <%= new Date(order.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit'
+                                                , minute: '2-digit' }) %>
                                         </div>
+                                </td>
+                                <td class="px-6 py-4 text-right text-xs">
+                                    <div class="text-indigo-400 font-medium">
+                                        <%= order.expiry_date ? new Date(order.expiry_date).toLocaleDateString('vi-VN')
+                                            : 'Unlimited' %>
+                                    </div>
+                                    <% if (order.expiry_date && new Date(order.expiry_date) < new Date()) { %>
+                                        <div class="text-[10px] text-rose-500/70">Expired</div>
+                                        <% } %>
                                 </td>
                                 <% if (user.role==='admin' ) { %>
                                     <td class="px-6 py-4 text-right">

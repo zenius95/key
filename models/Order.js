@@ -26,12 +26,28 @@ module.exports = (sequelize) => {
             comment: 'Duration in days'
         },
         status: {
-            type: DataTypes.ENUM('pending', 'completed', 'cancelled'),
+            type: DataTypes.ENUM('pending', 'completed', 'cancelled', 'expired'),
             defaultValue: 'pending'
         },
         transaction_id: {
             type: DataTypes.STRING,
             unique: true,
+            allowNull: true
+        },
+        product_id: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        package_id: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        expiry_date: {
+            type: DataTypes.DATE,
+            allowNull: true
+        },
+        hwid: {
+            type: DataTypes.STRING,
             allowNull: true
         },
         product_name: {
