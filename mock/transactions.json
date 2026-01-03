@@ -1,0 +1,13 @@
+{
+  "status": true,
+  "message": "Success",
+  "transactions": [
+    {
+      "transactionID": 9668,
+      "amount": 150000,
+      "description": "NAP1 FT22134660080706 GD 311270-051422 16:25:18",
+      "transactionDate": "16/05/2022",
+      "type": "IN"
+    }
+  ]
+}

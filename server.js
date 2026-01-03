@@ -1201,10 +1201,17 @@ app.get('/api/cron/check-transactions', async (req, res) => {
             return res.json({ status: false, message: 'Transaction endpoint not configured' });
         }
 
-        // Use dynamic import for fetch if needed, or global fetch (Node 18+)
-        // Assuming global fetch is available.
-        const response = await fetch(endpoint);
-        const data = await response.json();
+        // Fetch Data (Test Mode or Real API)
+        let data;
+        if (endpoint === 'test') {
+            const fs = require('fs').promises;
+            const mockPath = path.join(__dirname, 'mock', 'transactions.json');
+            const fileContent = await fs.readFile(mockPath, 'utf8');
+            data = JSON.parse(fileContent);
+        } else {
+            const response = await fetch(endpoint);
+            data = await response.json();
+        }
 
         if (!data.status || !data.transactions) {
             return res.json({ status: false, message: 'Invalid API response' });
@@ -1248,7 +1255,7 @@ app.get('/api/cron/check-transactions', async (req, res) => {
             await user.save();
 
             // Log Activity
-            await logActivity(user.id, 'DEPOSIT', amount, transactionId);
+            await logActivity(user.id, 'DEPOSIT', amount, user.balance, req, transactionId);
 
             processedCount++;
             processedIds.push(transactionId);
