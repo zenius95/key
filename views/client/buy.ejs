@@ -1,176 +1,327 @@
-<div class="max-w-7xl mx-auto">
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <!-- Left Column: Options -->
-        <div class="lg:col-span-8 space-y-8">
+<div class="relative min-h-screen overflow-hidden text-slate-300 selection:bg-indigo-500/30">
+    <!-- Background Effects -->
+    <div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+        <div
+            class="absolute top-0 left-1/4 w-96 h-96 bg-indigo-600/20 rounded-full blur-[100px] mix-blend-screen opacity-50 animate-blob">
+        </div>
+        <div
+            class="absolute top-1/4 right-1/4 w-96 h-96 bg-purple-600/20 rounded-full blur-[100px] mix-blend-screen opacity-50 animate-blob animation-delay-2000">
+        </div>
+        <div
+            class="absolute -bottom-32 left-1/3 w-96 h-96 bg-pink-600/20 rounded-full blur-[100px] mix-blend-screen opacity-50 animate-blob animation-delay-4000">
+        </div>
+    </div>
 
-            <!-- Product Selection -->
-            <div>
-                <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                    <span
-                        class="bg-indigo-600 w-8 h-8 rounded-lg flex items-center justify-center text-sm shadow-lg shadow-indigo-500/20">1</span>
-                    Chọn sản phẩm
-                </h3>
-                <% if (products.length===0) { %>
-                    <div class="p-4 bg-slate-900 border border-slate-800 rounded-xl text-slate-400">
-                        Chưa có sản phẩm nào đang hoạt động.
-                    </div>
-                    <% } else { %>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <% products.forEach((product, index)=> { %>
-                                <div onclick="selectProduct(<%= product.id %>)" id="prod-<%= product.id %>"
-                                    class="product-card group relative p-5 bg-slate-900 border border-slate-800 rounded-2xl cursor-pointer transition-all duration-200 hover:border-indigo-500/50 hover:shadow-lg hover:shadow-indigo-500/10 <%= index === 0 ? 'border-indigo-500 ring-1 ring-indigo-500 bg-indigo-500/5' : '' %>">
-                                    <div class="flex items-start justify-between">
-                                        <div class="flex items-center gap-3">
-                                            <div
-                                                class="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center group-hover:bg-indigo-500/20 transition">
-                                                <i
-                                                    class="ri-box-3-fill text-xl text-slate-400 group-hover:text-indigo-400 transition"></i>
-                                            </div>
-                                            <div>
-                                                <h4 class="font-bold text-white text-lg">
-                                                    <%= product.name %>
-                                                </h4>
-                                                <p class="text-xs text-slate-400">
-                                                    <%= product.packages ? product.packages.length : 0 %> gói dịch vụ
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div
-                                            class="check-icon opacity-0 scale-50 transition-all duration-200 <%= index === 0 ? 'opacity-100 scale-100' : '' %>">
-                                            <i class="ri-checkbox-circle-fill text-2xl text-indigo-500"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                                <% }); %>
-                        </div>
-                        <% } %>
-            </div>
-
-            <!-- Duration Selection -->
-            <div id="duration-section" class="<%= products.length === 0 ? 'hidden' : '' %>">
-                <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                    <span
-                        class="bg-indigo-600 w-8 h-8 rounded-lg flex items-center justify-center text-sm shadow-lg shadow-indigo-500/20">2</span>
-                    Thời hạn sử dụng
-                </h3>
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4" id="duration-buttons">
-                    <!-- Injected via JS -->
-                </div>
-            </div>
-
-            <!-- Package Selection (Dynamic) -->
-            <div id="package-section" class="<%= products.length === 0 ? 'hidden' : '' %>">
-                <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                    <span
-                        class="bg-indigo-600 w-8 h-8 rounded-lg flex items-center justify-center text-sm shadow-lg shadow-indigo-500/20">3</span>
-                    Chọn gói dịch vụ
-                </h3>
-
-                <div
-                    class="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 flex items-center gap-3 text-amber-400 mb-6">
-                    <i class="ri-information-fill text-xl"></i>
-                    <span class="text-sm font-medium">Giá hiển thị được tính theo tháng (Đã áp dụng giảm giá thời
-                        hạn).</span>
-                </div>
-
-                <div id="packages-container" class="space-y-4">
-                    <!-- Packages will be injected here via JS -->
-                </div>
-                <div id="no-packages-msg"
-                    class="hidden p-8 text-center bg-slate-900 border border-slate-800 rounded-xl text-slate-500">
-                    Sản phẩm này chưa có gói dịch vụ nào.
-                </div>
-            </div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
+        <!-- Header -->
+        <div class="text-center mb-16">
+            <h1 class="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">
+                Nâng cấp <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">Trải
+                    nghiệm</span> của bạn
+            </h1>
+            <p class="text-slate-400 text-lg max-w-2xl mx-auto">Chọn gói dịch vụ phù hợp để mở khóa toàn bộ tính năng
+                cao cấp và bứt phá hiệu suất công việc.</p>
         </div>
 
-        <!-- Right Column: Summary (Sticky) -->
-        <div class="lg:col-span-4">
-            <div class="sticky top-6">
-                <h3 class="text-xl font-bold text-white mb-4">Thanh toán</h3>
-                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-5">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+            <!-- Left Column: Options -->
+            <div class="lg:col-span-8 space-y-10">
 
-                    <!-- Product Info -->
-                    <div class="flex items-center gap-3 pb-5 border-b border-slate-800">
+                <!-- Step 1: Product Selection -->
+                <section>
+                    <div class="flex items-center gap-4 mb-6">
                         <div
-                            class="w-12 h-12 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400">
-                            <i class="ri-box-3-fill text-xl"></i>
+                            class="w-10 h-10 rounded-xl bg-slate-800/50 flex items-center justify-center font-bold text-indigo-400 border border-slate-700/50 shadow-lg shadow-indigo-500/10 backdrop-blur-sm">
+                            1</div>
+                        <h3 class="text-xl font-bold text-white">Chọn sản phẩm / Dịch vụ</h3>
+                    </div>
+
+                    <% if (products.length===0) { %>
+                        <div
+                            class="p-8 bg-slate-900/50 backdrop-blur-md border border-red-500/20 rounded-2xl text-center">
+                            <div class="inline-flex p-3 rounded-full bg-red-500/10 text-red-400 mb-3"><i
+                                    class="ri-error-warning-line text-2xl"></i></div>
+                            <p class="text-slate-400">Chưa có sản phẩm nào đang hoạt động.</p>
                         </div>
+                        <% } else { %>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                                <% products.forEach((product, index)=> { %>
+                                    <div onclick="selectProduct(<%= product.id %>)" id="prod-<%= product.id %>"
+                                        class="product-card group relative p-6 bg-slate-900/60 backdrop-blur-xl border border-slate-800 rounded-3xl cursor-pointer transition-all duration-300 hover:border-indigo-500/50 hover:shadow-2xl hover:shadow-indigo-500/10 overflow-hidden isolate <%= index === 0 ? 'active border-indigo-500 ring-1 ring-indigo-500/50 bg-slate-800/80' : '' %>">
+
+                                        <!-- Hover Gradient Background -->
+                                        <div
+                                            class="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10">
+                                        </div>
+
+                                        <div class="flex items-start justify-between relative z-10">
+                                            <div class="flex items-center gap-4">
+                                                <div
+                                                    class="w-14 h-14 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700/50 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-inner">
+                                                    <i
+                                                        class="ri-box-3-fill text-2xl text-transparent bg-clip-text bg-gradient-to-br from-indigo-400 to-purple-400"></i>
+                                                </div>
+                                                <div>
+                                                    <h4
+                                                        class="font-bold text-white text-lg tracking-wide group-hover:text-indigo-300 transition-colors">
+                                                        <%= product.name %>
+                                                    </h4>
+                                                    <p
+                                                        class="text-xs font-medium text-slate-500 bg-slate-800/80 px-2 py-1 rounded-md inline-block mt-1">
+                                                        <%= product.packages ? product.packages.length : 0 %> Options
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div
+                                                class="check-icon w-6 h-6 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center opacity-0 scale-50 transition-all duration-300 shadow-lg shadow-indigo-500/30 <%= index === 0 ? 'opacity-100 scale-100' : '' %>">
+                                                <i class="ri-check-line text-white text-sm font-bold"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <% }); %>
+                            </div>
+                            <% } %>
+                </section>
+
+                <!-- Step 2: Duration Selection -->
+                <section id="duration-section"
+                    class="transition-all duration-500 <%= products.length === 0 ? 'opacity-50 blur-sm pointer-events-none' : '' %>">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div
+                            class="w-10 h-10 rounded-xl bg-slate-800/50 flex items-center justify-center font-bold text-indigo-400 border border-slate-700/50 shadow-lg shadow-indigo-500/10 backdrop-blur-sm">
+                            2</div>
+                        <h3 class="text-xl font-bold text-white">Chọn thời hạn</h3>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4" id="duration-buttons">
+                        <!-- Injected via JS -->
+                    </div>
+                </section>
+
+                <!-- Step 3: Package Selection -->
+                <section id="package-section"
+                    class="transition-all duration-500 <%= products.length === 0 ? 'opacity-50 blur-sm pointer-events-none' : '' %>">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div
+                            class="w-10 h-10 rounded-xl bg-slate-800/50 flex items-center justify-center font-bold text-indigo-400 border border-slate-700/50 shadow-lg shadow-indigo-500/10 backdrop-blur-sm">
+                            3</div>
+                        <h3 class="text-xl font-bold text-white">Chọn gói dịch vụ</h3>
+                    </div>
+
+                    <!-- Info Alert -->
+                    <div
+                        class="bg-gradient-to-r from-amber-500/10 to-orange-500/5 border border-amber-500/10 rounded-2xl p-4 flex items-start gap-4 text-amber-300 mb-8">
+                        <div class="p-2 bg-amber-500/10 rounded-lg shrink-0 mt-0.5"><i
+                                class="ri-lightbulb-flash-line"></i></div>
                         <div>
-                            <p class="text-xs text-slate-500 font-medium uppercase tracking-wider">Sản phẩm</p>
-                            <p class="text-white font-bold" id="summary-product-name">--</p>
+                            <p class="font-medium text-amber-200">Lưu ý về giá</p>
+                            <p class="text-sm mt-1 text-amber-400/80">Giá hiển thị là đơn giá theo tháng (Đã áp dụng
+                                giảm giá nếu chọn thời hạn dài). Tiết kiệm hơn khi mua gói 6 tháng hoặc 1 năm.</p>
                         </div>
                     </div>
 
-                    <div class="space-y-3">
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="text-slate-400">Gói dịch vụ</span>
-                            <span class="font-medium text-white" id="summary-pkg-name">--</span>
+                    <div id="packages-container" class="space-y-4">
+                        <!-- Packages will be injected here via JS -->
+                    </div>
+                    <div id="no-packages-msg"
+                        class="hidden py-12 text-center bg-slate-900/50 rounded-3xl border border-dashed border-slate-800 text-slate-500">
+                        <div class="mb-3"><i class="ri-inbox-archive-line text-4xl opacity-50"></i></div>
+                        Sản phẩm này chưa có cấu hình gói dịch vụ.
+                    </div>
+                </section>
+            </div>
+
+            <!-- Right Column: Summary (Sticky) -->
+            <div class="lg:col-span-4">
+                <div class="sticky top-8 space-y-6">
+                    <div
+                        class="bg-slate-900/80 backdrop-blur-2xl border border-slate-800 rounded-3xl p-6 shadow-2xl shadow-black/50 relative overflow-hidden">
+                        <!-- Decorative Top Border -->
+                        <div
+                            class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
                         </div>
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="text-slate-400">Phiên hoạt động</span>
-                            <span class="font-medium text-white" id="summary-pkg-uids">--</span>
+
+                        <h3 class="text-lg font-bold text-white mb-6 flex items-center gap-2">
+                            <i class="ri-bill-line text-indigo-400"></i> Xác nhận đơn hàng
+                        </h3>
+
+                        <!-- Product Info -->
+                        <div class="flex items-center gap-4 pb-6 border-b border-slate-800/80">
+                            <div
+                                class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center text-indigo-400 border border-indigo-500/20">
+                                <i class="ri-box-3-fill text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Sản phẩm</p>
+                                <p class="text-white font-bold text-lg leading-tight" id="summary-product-name">--</p>
+                            </div>
                         </div>
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="text-slate-400">Đơn giá / tháng</span>
-                            <span class="font-mono font-medium text-white" id="summary-base-price">0đ</span>
+
+                        <!-- Details List -->
+                        <div class="py-6 space-y-4">
+                            <div class="flex justify-between items-center text-sm group">
+                                <span class="text-slate-400 group-hover:text-slate-300 transition-colors">Gói dịch
+                                    vụ</span>
+                                <span class="font-medium text-white bg-slate-800 px-2 py-0.5 rounded text-xs"
+                                    id="summary-pkg-name">--</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm group">
+                                <span class="text-slate-400 group-hover:text-slate-300 transition-colors">Giới hạn
+                                    UID</span>
+                                <span class="font-medium text-white" id="summary-pkg-uids">--</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm group">
+                                <span class="text-slate-400 group-hover:text-slate-300 transition-colors">Đơn giá /
+                                    tháng</span>
+                                <span class="font-mono font-medium text-slate-200" id="summary-base-price">0đ</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm group">
+                                <span class="text-slate-400 group-hover:text-slate-300 transition-colors">Thời
+                                    hạn</span>
+                                <span class="font-medium text-indigo-400" id="summary-duration">1 tháng</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm group">
+                                <span class="text-slate-400 group-hover:text-slate-300 transition-colors">Hết hạn
+                                    ngày</span>
+                                <span class="font-medium text-slate-200" id="summary-expiry">--</span>
+                            </div>
                         </div>
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="text-slate-400">Thời hạn</span>
-                            <span class="font-medium text-white" id="summary-duration">1 tháng</span>
+
+                        <!-- Receipt Dashed Line -->
+                        <div class="relative h-px bg-slate-800 my-2">
+                            <div class="absolute -left-8 -top-3 w-6 h-6 rounded-full bg-[#0f172a]"></div>
+                            <div class="absolute -right-8 -top-3 w-6 h-6 rounded-full bg-[#0f172a]"></div>
                         </div>
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="text-slate-400">Hết hạn ngày</span>
-                            <span class="font-medium text-white" id="summary-expiry">--</span>
+
+                        <!-- Pricing Breakdown -->
+                        <div class="py-6 space-y-3">
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-slate-400">Tạm tính</span>
+                                <span class="font-mono font-medium text-white" id="summary-subtotal">0đ</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-slate-400">Giảm giá <span
+                                        class="bg-rose-500/10 text-rose-400 text-[10px] px-1.5 py-0.5 rounded ml-1"
+                                        id="summary-discount-tag"><span
+                                            id="summary-discount-percent">0</span>%</span></span>
+                                <span class="font-mono font-bold text-rose-400" id="summary-discount">0đ</span>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-slate-800 pt-5">
+                            <div class="flex justify-between items-end">
+                                <span class="font-bold text-slate-200 mb-1">Tổng thanh toán</span>
+                                <div class="text-right">
+                                    <span
+                                        class="block text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 font-mono"
+                                        id="summary-total">0đ</span>
+                                    <span class="text-[10px] text-slate-500 font-medium tracking-wide">ĐÃ BAO GỒM
+                                        VAT</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="border-t border-slate-800 border-dashed"></div>
-
-                    <div class="space-y-3">
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="text-slate-400">Tạm tính</span>
-                            <span class="font-mono font-medium text-white" id="summary-subtotal">0đ</span>
+                    <!-- Wallet Balance -->
+                    <div
+                        class="bg-slate-900/50 backdrop-blur border border-slate-800 rounded-2xl p-4 flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+                                <i class="ri-wallet-3-fill"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] uppercase text-slate-500 font-bold">Số dư hiện tại</p>
+                                <p class="font-mono font-bold text-emerald-400 text-lg">
+                                    <%= new Intl.NumberFormat('vi-VN', { style: 'currency' , currency: 'VND'
+                                        }).format(user.balance) %>
+                                </p>
+                            </div>
                         </div>
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="text-slate-400">Giảm giá (<span id="summary-discount-percent">0</span>%)</span>
-                            <span class="font-mono font-bold text-rose-500" id="summary-discount">0đ</span>
+                        <a href="/recharge"
+                            class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 transition"
+                            title="Nạp tiền">
+                            <i class="ri-add-line"></i>
+                        </a>
+                    </div>
+
+                    <!-- Error Alert -->
+                    <div id="balance-warning"
+                        class="hidden p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-start gap-3 animate-fade-in-up">
+                        <i class="ri-alert-fill text-rose-500 mt-0.5"></i>
+                        <div>
+                            <h4 class="text-sm font-bold text-rose-400">Số dư không đủ</h4>
+                            <p class="text-xs text-rose-300/80 mt-1">Vui lòng nạp thêm tiền vào ví để thực hiện giao
+                                dịch này.</p>
                         </div>
                     </div>
 
-                    <div class="border-t border-slate-800"></div>
+                    <!-- Action Button -->
+                    <button onclick="submitOrder()" id="btn-submit"
+                        class="w-full relative group bg-gradient-to-r from-indigo-600 to-purple-600 hover:to-indigo-600 text-white font-bold py-5 rounded-2xl shadow-xl shadow-indigo-600/20 transition-all duration-300 transform active:scale-[0.98] disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed overflow-hidden">
 
-                    <div class="flex justify-between items-end">
-                        <span class="font-bold text-slate-200">Tổng thanh toán</span>
-                        <div class="text-right">
-                            <span class="block text-2xl font-bold text-indigo-400 font-mono"
-                                id="summary-total">0đ</span>
-                            <span class="text-[10px] text-slate-500">Đã bao gồm VAT</span>
+                        <div
+                            class="absolute inset-0 bg-white/20 blur-lg group-hover:opacity-100 opacity-0 transition-opacity duration-300">
                         </div>
-                    </div>
-                </div>
-
-                <div class="mt-4 bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-xs text-slate-400 font-medium uppercase">Số dư ví</span>
-                        <span class="font-mono font-bold text-emerald-400">
-                            <%= new Intl.NumberFormat('vi-VN', { style: 'currency' , currency: 'VND'
-                                }).format(user.balance) %>
+                        <span class="relative z-10 flex items-center justify-center gap-2 text-lg">
+                            <i class="ri-secure-payment-line"></i> Thanh toán ngay
                         </span>
-                    </div>
-                    <div id="balance-warning" class="hidden flex items-center gap-2 text-rose-400 text-xs">
-                        <i class="ri-error-warning-fill"></i>
-                        <span>Số dư không đủ thanh toán</span>
-                    </div>
-                </div>
+                    </button>
 
-                <button onclick="submitOrder()" id="btn-submit"
-                    class="w-full mt-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-indigo-500/20 transition transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
-                    Thanh toán ngay
-                </button>
+                    <p class="text-center text-xs text-slate-500">
+                        Thanh toán an toàn & Tự động kích hoạt ngay lập tức
+                    </p>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .animate-blob {
+        animation: blob 10s infinite;
+    }
+
+    .animation-delay-2000 {
+        animation-delay: 2s;
+    }
+
+    .animation-delay-4000 {
+        animation-delay: 4s;
+    }
+
+    @keyframes blob {
+        0% {
+            transform: translate(0px, 0px) scale(1);
+        }
+
+        33% {
+            transform: translate(30px, -50px) scale(1.1);
+        }
+
+        66% {
+            transform: translate(-20px, 20px) scale(0.9);
+        }
+
+        100% {
+            transform: translate(0px, 0px) scale(1);
+        }
+    }
+
+    /* Custom Scrollbar for packages container if needed */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: rgba(15, 23, 42, 0.5);
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(99, 102, 241, 0.5);
+        border-radius: 4px;
+    }
+</style>
 
 <script>
     // Data passed from backend
@@ -213,25 +364,28 @@
 
         // Update UI: Product Cards
         document.querySelectorAll('.product-card').forEach(el => {
-            el.classList.remove('border-indigo-500', 'ring-1', 'ring-indigo-500', 'bg-indigo-500/5');
+            el.classList.remove('active', 'border-indigo-500', 'ring-1', 'ring-indigo-500/50', 'bg-slate-800/80', 'shadow-indigo-500/20', 'shadow-lg');
             el.querySelector('.check-icon').classList.remove('opacity-100', 'scale-100');
         });
         const activeCard = document.getElementById(`prod-${id}`);
         if (activeCard) {
-            activeCard.classList.add('border-indigo-500', 'ring-1', 'ring-indigo-500', 'bg-indigo-500/5');
+            activeCard.classList.add('active', 'border-indigo-500', 'ring-1', 'ring-indigo-500/50', 'bg-slate-800/80', 'shadow-lg', 'shadow-indigo-500/20');
             activeCard.querySelector('.check-icon').classList.add('opacity-100', 'scale-100');
         }
 
         // Render Packages
         const container = document.getElementById('packages-container');
         const noPkgMsg = document.getElementById('no-packages-msg');
+        const pkgSection = document.getElementById('package-section');
         container.innerHTML = '';
 
         if (!product.packages || product.packages.length === 0) {
             noPkgMsg.classList.remove('hidden');
+            container.classList.add('hidden');
             selectedPackageId = null;
         } else {
             noPkgMsg.classList.add('hidden');
+            container.classList.remove('hidden');
 
             // Sort packages by price
             const sortedPackages = product.packages.sort((a, b) => parseFloat(a.original_price) - parseFloat(b.original_price));
@@ -239,25 +393,31 @@
             sortedPackages.forEach((pkg, index) => {
                 const el = document.createElement('div');
                 el.id = `pkg-${pkg.id}`;
-                el.className = `package-card bg-slate-900 rounded-xl p-6 cursor-pointer border-2 transition-all duration-200 hover:border-indigo-500/30 group ${index === 0 ? 'border-indigo-600 bg-indigo-600/5' : 'border-slate-800'}`;
+                el.className = `package-card group relative p-5 bg-slate-900/40 backdrop-blur-md rounded-2xl cursor-pointer border transition-all duration-200 hover:border-indigo-500/40 hover:bg-slate-800/60 ${index === 0 ? 'active border-indigo-500/80 bg-gradient-to-r from-indigo-900/10 to-purple-900/10' : 'border-slate-800'}`;
                 el.onclick = () => selectPackage(pkg.id);
 
-                const uids = pkg.max_uids === 0 ? 'Không giới hạn' : pkg.max_uids + ' UIDs';
+                const uids = pkg.max_uids === 0 ? 'Không giới hạn' : `<span class="font-mono text-indigo-300 font-bold">${pkg.max_uids}</span> UIDs`;
 
                 el.innerHTML = `
-                    <div class="flex justify-between items-center">
+                    <div class="absolute inset-0 border-2 border-transparent group-hover:border-indigo-500/10 rounded-2xl pointer-events-none transition-colors"></div>
+                    
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
                         <div class="flex items-center gap-4">
-                            <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center transition ${index === 0 ? 'border-indigo-500' : 'border-slate-600 group-hover:border-indigo-500'}">
-                                <div class="w-2.5 h-2.5 rounded-full bg-indigo-500 transition ${index === 0 ? 'opacity-100' : 'opacity-0'} dot-indicator"></div>
+                            <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${index === 0 ? 'border-indigo-500' : 'border-slate-600 group-hover:border-indigo-400'} radio-outer">
+                                <div class="w-3 h-3 rounded-full bg-indigo-500 transition-transform ${index === 0 ? 'scale-100' : 'scale-0'} radio-inner"></div>
                             </div>
                             <div>
-                                <h4 class="text-lg font-bold text-white">${pkg.name}</h4>
-                                <p class="text-slate-400 text-sm">${uids}</p>
+                                <h4 class="text-white font-bold text-lg leading-tight group-hover:text-indigo-200 transition-colors">${pkg.name}</h4>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span class="text-slate-400 text-xs bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700/50 flex items-center gap-1">
+                                        <i class="ri-user-star-line"></i> ${uids}
+                                    </span>
+                                </div>
                             </div>
                         </div>
-                        <div class="text-right">
-                            <p class="text-xl font-bold text-white font-mono">${new Intl.NumberFormat('vi-VN').format(pkg.original_price)}đ</p>
-                            <p class="text-xs text-slate-500">/ tháng</p>
+                        <div class="text-right pl-10 sm:pl-0">
+                            <p class="text-xl font-bold text-white font-mono tracking-tight">${new Intl.NumberFormat('vi-VN').format(pkg.original_price)}<span class="text-sm font-sans font-normal text-slate-400">đ</span></p>
+                            <p class="text-[10px] uppercase text-slate-500 font-bold tracking-wider">/ Tháng</p>
                         </div>
                     </div>
                 `;
@@ -284,14 +444,25 @@
         ];
 
         container.innerHTML = buttons.map(btn => `
-            <button onclick="selectDuration(${btn.val})" id="dur-${btn.val}" 
-                class="duration-btn bg-slate-900 text-slate-300 font-bold py-4 rounded-xl border border-slate-800 hover:bg-slate-800 hover:text-white transition relative overflow-hidden group">
-                ${btn.label}
-                ${btn.discount > 0 ? `<span class="absolute top-0 right-0 bg-emerald-500/10 text-emerald-400 border-l border-b border-emerald-500/20 text-[10px] px-2 py-0.5 rounded-bl-xl font-medium">-${btn.discount}%</span>` : ''}
-            </button>
+            <div onclick="selectDuration(${btn.val})" id="dur-${btn.val}" 
+                class="duration-btn relative flex flex-col items-center justify-center p-4 rounded-2xl border-2 cursor-pointer transition-all duration-300 group overflow-hidden bg-slate-900/40 backdrop-blur-md border-slate-800 hover:border-indigo-500/30 hover:bg-slate-800/60">
+                
+                ${btn.discount > 0 ? `
+                <div class="absolute -top-3 -right-3 w-12 h-12 flex items-end justify-center transform rotate-45 translate-x-1 translate-y-1">
+                    <div class="absolute inset-0 bg-gradient-to-r from-pink-500 to-rose-500 blur-sm opacity-50"></div>
+                </div>
+                <div class="absolute top-0 right-0 bg-gradient-to-bl from-pink-500 to-rose-600 text-white text-[10px] font-bold px-2 py-1 rounded-bl-xl shadow-lg z-10">
+                    -${btn.discount}%
+                </div>` : ''}
+
+                <span class="text-sm font-medium text-slate-400 group-hover:text-white transition-colors duration-200 label-text">${btn.label.split(' ')[1]}</span>
+                <span class="text-2xl font-bold text-slate-200 group-hover:text-indigo-400 transition-colors duration-200 value-text font-mono">${btn.label.split(' ')[0]}</span>
+                
+                <div class="absolute bottom-0 left-0 w-full h-1 bg-indigo-500 transform scale-x-0 group-hover:scale-x-50 transition-transform duration-300 active-bar"></div>
+            </div>
         `).join('');
 
-        selectDuration(selectedDuration); // Re-select to apply styles and new discounts
+        selectDuration(selectedDuration);
     }
 
     function selectPackage(id) {
@@ -303,19 +474,28 @@
 
         // Update UI
         document.querySelectorAll('.package-card').forEach(el => {
-            el.classList.remove('border-indigo-600', 'bg-indigo-600/5');
+            el.classList.remove('active', 'border-indigo-500/80', 'bg-gradient-to-r', 'from-indigo-900/10', 'to-purple-900/10');
             el.classList.add('border-slate-800');
-            el.querySelector('.dot-indicator').classList.add('opacity-0');
-            el.querySelector('.w-5').classList.remove('border-indigo-500');
-            el.querySelector('.w-5').classList.add('border-slate-600');
+
+            const radioInner = el.querySelector('.radio-inner');
+            const radioOuter = el.querySelector('.radio-outer');
+            if (radioInner) radioInner.classList.remove('scale-100');
+            if (radioInner) radioInner.classList.add('scale-0');
+            if (radioOuter) radioOuter.classList.remove('border-indigo-500');
+            if (radioOuter) radioOuter.classList.add('border-slate-600');
         });
+
         const activeEl = document.getElementById(`pkg-${id}`);
         if (activeEl) {
             activeEl.classList.remove('border-slate-800');
-            activeEl.classList.add('border-indigo-600', 'bg-indigo-600/5');
-            activeEl.querySelector('.dot-indicator').classList.remove('opacity-0');
-            activeEl.querySelector('.w-5').classList.remove('border-slate-600');
-            activeEl.querySelector('.w-5').classList.add('border-indigo-500');
+            activeEl.classList.add('active', 'border-indigo-500/80', 'bg-gradient-to-r', 'from-indigo-900/10', 'to-purple-900/10');
+
+            const radioInner = activeEl.querySelector('.radio-inner');
+            const radioOuter = activeEl.querySelector('.radio-outer');
+            if (radioInner) radioInner.classList.remove('scale-0');
+            if (radioInner) radioInner.classList.add('scale-100');
+            if (radioOuter) radioOuter.classList.remove('border-slate-600');
+            if (radioOuter) radioOuter.classList.add('border-indigo-500');
         }
 
         document.getElementById('summary-pkg-name').innerText = pkg.name;
@@ -329,13 +509,20 @@
 
         // Update UI Buttons
         document.querySelectorAll('.duration-btn').forEach(btn => {
-            btn.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-600');
-            btn.classList.add('bg-slate-900', 'text-slate-300', 'border-slate-800');
+            btn.classList.remove('border-indigo-500', 'bg-indigo-600/10');
+            btn.classList.add('border-slate-800');
+            btn.querySelector('.active-bar').classList.remove('scale-x-100');
+            btn.querySelector('.active-bar').classList.add('scale-x-0');
+            btn.querySelector('.value-text').classList.remove('text-indigo-400');
         });
+
         const activeBtn = document.getElementById(`dur-${months}`);
         if (activeBtn) {
-            activeBtn.classList.remove('bg-slate-900', 'text-slate-300', 'border-slate-800');
-            activeBtn.classList.add('bg-indigo-600', 'text-white', 'border-indigo-600');
+            activeBtn.classList.remove('border-slate-800');
+            activeBtn.classList.add('border-indigo-500', 'bg-indigo-600/10');
+            activeBtn.querySelector('.active-bar').classList.remove('scale-x-0');
+            activeBtn.querySelector('.active-bar').classList.add('scale-x-100');
+            activeBtn.querySelector('.value-text').classList.add('text-indigo-400');
         }
 
         updateSummary();
@@ -343,14 +530,13 @@
 
     function updateSummary() {
         if (!selectedPackageId) {
-            // Reset summary
             document.getElementById('summary-total').innerText = '0đ';
             return;
         }
 
         const formatter = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' });
 
-        // Find discount percent for current duration
+        // Find discount percent
         let discountPercent = 0;
         if (selectedDuration === 3) discountPercent = productDiscounts.month3 || 0;
         if (selectedDuration === 6) discountPercent = productDiscounts.month6 || 0;
@@ -360,11 +546,12 @@
         const discountAmount = Math.round((subTotal * discountPercent) / 100);
         const total = subTotal - discountAmount;
 
-        document.getElementById('summary-base-price').innerText = formatter.format(selectedPrice);
-        document.getElementById('summary-duration').innerText = selectedDuration + (selectedDuration === 12 ? ' năm' : ' tháng');
-
         const date = new Date();
         date.setDate(date.getDate() + (selectedDuration * 30));
+
+        // Update DOM
+        document.getElementById('summary-base-price').innerText = formatter.format(selectedPrice);
+        document.getElementById('summary-duration').innerText = selectedDuration + (selectedDuration === 12 ? ' năm' : ' tháng');
         document.getElementById('summary-expiry').innerText = date.toLocaleDateString('vi-VN');
 
         document.getElementById('summary-subtotal').innerText = formatter.format(subTotal);
@@ -372,32 +559,39 @@
         document.getElementById('summary-discount').innerText = '-' + formatter.format(discountAmount);
         document.getElementById('summary-total').innerText = formatter.format(total);
 
+        // Toggle Discount Tag
+        const discTag = document.getElementById('summary-discount-tag');
+        if (discountPercent > 0) {
+            discTag.classList.remove('hidden');
+            discTag.classList.add('inline-flex');
+        } else {
+            discTag.classList.add('hidden');
+            discTag.classList.remove('inline-flex');
+        }
+
         // Check Balance
         const btn = document.getElementById('btn-submit');
         const warning = document.getElementById('balance-warning');
 
         if (total > userBalance) {
             btn.disabled = true;
-            btn.classList.add('bg-slate-700', 'shadow-none');
-            btn.classList.remove('bg-indigo-600', 'hover:bg-indigo-500');
             warning.classList.remove('hidden');
         } else {
             btn.disabled = false;
-            btn.classList.remove('bg-slate-700', 'shadow-none');
-            btn.classList.add('bg-indigo-600', 'hover:bg-indigo-500');
             warning.classList.add('hidden');
         }
     }
 
     async function submitOrder() {
-        if (!selectedPackageId) return alert('Vui lòng chọn gói dịch vụ.');
+        if (!selectedPackageId) return; // Should be disabled anyway
 
         if (!confirm('Xác nhận thanh toán gói dịch vụ này?')) return;
 
         const btn = document.getElementById('btn-submit');
-        const originalText = btn.innerHTML;
+        const originalContent = btn.innerHTML;
+
         btn.disabled = true;
-        btn.innerHTML = '<i class="ri-loader-4-line animate-spin text-xl"></i>';
+        btn.innerHTML = '<i class="ri-loader-4-line animate-spin text-2xl"></i>';
 
         try {
             const response = await fetch('/buy', {
@@ -411,17 +605,24 @@
             const data = await response.json();
 
             if (data.success) {
-                window.location.href = data.redirect || '/history?tab=orders';
+                // Success animation or redirect
+                btn.innerHTML = '<i class="ri-check-line text-2xl"></i> Thành công!';
+                btn.classList.remove('from-indigo-600', 'to-purple-600');
+                btn.classList.add('bg-emerald-500');
+
+                setTimeout(() => {
+                    window.location.href = data.redirect || '/history?tab=orders';
+                }, 1000);
             } else {
                 alert(data.message);
                 btn.disabled = false;
-                btn.innerHTML = originalText;
+                btn.innerHTML = originalContent;
             }
         } catch (e) {
             console.error(e);
-            alert('Có lỗi xảy ra.');
+            alert('Có lỗi xảy ra khi kết nối tới máy chủ.');
             btn.disabled = false;
-            btn.innerHTML = originalText;
+            btn.innerHTML = originalContent;
         }
     }
 </script>
