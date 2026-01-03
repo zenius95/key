@@ -96,8 +96,6 @@
                 class="bg-transparent border-none text-slate-300 text-sm focus:outline-none focus:ring-0 p-2.5 w-full sm:w-auto cursor-pointer font-medium outline-none">
                 <option value="all" class="bg-slate-950" <%=statusFilter==='all' ? 'selected' : '' %>>Tất cả trạng thái
                 </option>
-                <option value="pending" class="bg-slate-950 text-amber-400" <%=statusFilter==='pending' ? 'selected'
-                    : '' %>>Chờ xử lý</option>
                 <option value="completed" class="bg-slate-950 text-emerald-400" <%=statusFilter==='completed'
                     ? 'selected' : '' %>>Hoàn thành</option>
                 <option value="cancelled" class="bg-slate-950 text-rose-400" <%=statusFilter==='cancelled' ? 'selected'
@@ -215,13 +213,27 @@
                                         }).format(order.amount) %>
                                 </td>
                                 <td class="px-6 py-4 text-center">
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium 
-                                    <%= order.status === 'completed' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 
-                                       (order.status === 'pending' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 
-                                       (order.status === 'expired' ? 'bg-slate-700/50 text-slate-400 border border-slate-700' :
-                                       'bg-rose-500/10 text-rose-400 border border-rose-500/20')) %>">
-                                        <%= order.status.charAt(0).toUpperCase() + order.status.slice(1) %>
-                                    </span>
+                                    <% if (order.status==='completed' ) { %>
+                                        <span
+                                            class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                            Hoàn thành
+                                        </span>
+                                        <% } else if (order.status==='cancelled' ) { %>
+                                            <span
+                                                class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                                                Đã hủy
+                                            </span>
+                                            <% } else if (order.status==='expired' ) { %>
+                                                <span
+                                                    class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-700/50 text-slate-400 border border-slate-700">
+                                                    Hết hạn
+                                                </span>
+                                                <% } else { %>
+                                                    <span
+                                                        class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-700/50 text-slate-400 border border-slate-700">
+                                                        <%= order.status %>
+                                                    </span>
+                                                    <% } %>
                                 </td>
                                 <td class="px-6 py-4 text-slate-500 text-xs">
                                     <%= new Date(order.createdAt).toLocaleDateString('vi-VN') %>
