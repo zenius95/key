@@ -1,0 +1,203 @@
+<!-- Toolbar (Filter) -->
+<!-- Toolbar (Filter) -->
+<div
+    class="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-6 gap-4 bg-slate-900/50 p-1.5 rounded-2xl border border-slate-800/50 backdrop-blur-sm shadow-sm">
+    <!-- Search Input -->
+    <div class="relative w-full sm:flex-1">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-4 w-4 text-slate-500 transition duration-200 group-focus-within:text-indigo-400" fill="none"
+                stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+        </div>
+        <input type="text" id="searchInput" placeholder="Tìm kiếm mã giao dịch..."
+            value="<%= typeof search !== 'undefined' ? search : '' %>"
+            class="bg-transparent border-none text-slate-200 text-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 block w-full pl-10 p-2.5 placeholder-slate-500 transition duration-200"
+            onkeydown="if(event.key === 'Enter') applyFilters()">
+    </div>
+
+    <div class="flex items-center gap-2 w-full sm:w-auto">
+
+        <!-- User Filter Input -->
+        <div class="relative w-full sm:w-64">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+            </div>
+            <input type="text" id="userFilterInput" placeholder="Tên user/email..."
+                value="<%= typeof userSearch !== 'undefined' ? userSearch : '' %>"
+                onkeydown="if(event.key === 'Enter') applyFilters()"
+                class="bg-transparent border-none text-slate-200 text-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 block w-full pl-10 p-2.5 placeholder-slate-500 transition duration-200">
+        </div>
+
+        <!-- Action Filter -->
+        <div
+            class="flex items-center gap-2 bg-slate-800/50 rounded-xl px-2 border border-slate-700/50 focus-within:ring-2 focus-within:ring-indigo-500/50 focus-within:border-indigo-500/50 transition w-full sm:w-auto hover:bg-slate-800">
+            <div class="pointer-events-none flex items-center pl-2">
+                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z">
+                    </path>
+                </svg>
+            </div>
+            <select id="actionFilter" onchange="applyFilters()"
+                class="bg-transparent border-none text-slate-300 text-sm focus:outline-none focus:ring-0 p-2.5 w-full sm:w-auto cursor-pointer font-medium outline-none">
+                <option value="all" class="bg-slate-950" <%=actionFilter==='all' ? 'selected' : '' %>>Tất cả hành động
+                </option>
+                <option value="LOGIN" class="bg-slate-950" <%=actionFilter==='LOGIN' ? 'selected' : '' %>>Đăng nhập
+                </option>
+                <option value="PURCHASE" class="bg-slate-950" <%=actionFilter==='PURCHASE' ? 'selected' : '' %>>Mua hàng
+                </option>
+                <option value="DEPOSIT" class="bg-slate-950" <%=actionFilter==='DEPOSIT' ? 'selected' : '' %>>Nạp tiền
+                </option>
+                <option value="BALANCE_UPDATE" class="bg-slate-950" <%=actionFilter==='BALANCE_UPDATE' ? 'selected' : ''
+                    %>>Điều chỉnh số dư</option>
+                <option value="USER_UPDATE" class="bg-slate-950" <%=actionFilter==='USER_UPDATE' ? 'selected' : '' %>
+                    >Cập nhật User</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Refresh Button -->
+    <!-- Submit Button (Search) -->
+    <button onclick="applyFilters()"
+        class="bg-indigo-600 hover:bg-indigo-500 text-white p-2.5 rounded-xl transition shadow-lg shadow-indigo-500/20 flex items-center justify-center">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+    </button>
+</div>
+
+<!-- Logs Table -->
+<div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-sm flex flex-col">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead class="bg-slate-850 text-[10px] uppercase text-slate-400 font-semibold border-b border-slate-800">
+                <tr>
+                    <th class="px-6 py-4 w-[15%]">Thời gian</th>
+                    <th class="px-6 py-4 w-[15%]">Người dùng</th>
+                    <th class="px-6 py-4 w-[10%]">Hành động</th>
+                    <th class="px-6 py-4 w-[25%]">Mô tả</th>
+                    <th class="px-6 py-4 w-[10%] text-right">Thay đổi</th>
+                    <th class="px-6 py-4 w-[10%] text-right">Số dư</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800 text-sm">
+                <% logs.forEach(function(log) { %>
+                    <tr class="hover:bg-slate-800/50 transition duration-150">
+                        <td class="px-6 py-4 text-slate-400 whitespace-nowrap">
+                            <%= new Date(log.createdAt).toLocaleString('vi-VN') %>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center gap-2">
+                                <div
+                                    class="w-6 h-6 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-bold text-slate-300 shadow-sm">
+                                    <%= (log.user?.full_name || log.user?.email || '?' ).charAt(0).toUpperCase() %>
+                                </div>
+                                <span class="text-slate-200 font-medium text-xs">
+                                    <%= log.user?.email || 'Unknown' %>
+                                </span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <% let badgeClass='bg-slate-700/50 text-slate-400 border-slate-700' ; if
+                                (log.action==='LOGIN' ) badgeClass='bg-blue-500/10 text-blue-400 border-blue-500/20' ;
+                                else if (log.action==='PURCHASE' )
+                                badgeClass='bg-indigo-500/10 text-indigo-400 border-indigo-500/20' ; else if
+                                (log.action==='BALANCE_UPDATE' )
+                                badgeClass='bg-emerald-500/10 text-emerald-400 border-emerald-500/20' ; else if
+                                (log.action==='USER_UPDATE' )
+                                badgeClass='bg-orange-500/10 text-orange-400 border-orange-500/20' ; else if
+                                (log.action==='DEPOSIT' )
+                                badgeClass='bg-emerald-500/10 text-emerald-400 border-emerald-500/20' ; %>
+                                <span
+                                    class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold border uppercase tracking-wider <%= badgeClass %>">
+                                    <%= log.action %>
+                                </span>
+                        </td>
+                        <td class="px-6 py-4 text-slate-300 relative group">
+                            <div class="whitespace-normal break-words max-w-xs">
+                                <%= activityActions[log.action] || log.action %>
+                                    <% if (log.transactionId) { %>
+                                        <div class="text-[10px] text-indigo-400 font-mono mt-1">
+                                            #<%= log.transactionId %>
+                                        </div>
+                                        <% } %>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-right font-medium">
+                            <% if (parseFloat(log.balanceChange) !==0) { %>
+                                <span
+                                    class="<%= parseFloat(log.balanceChange) > 0 ? 'text-emerald-400' : 'text-rose-400' %>">
+                                    <%= parseFloat(log.balanceChange)> 0 ? '+' : '' %><%= new Intl.NumberFormat('vi-VN',
+                                            { style: 'currency' , currency: 'VND' }).format(log.balanceChange) %>
+                                </span>
+                                <% } else { %>
+                                    <span class="text-slate-600">-</span>
+                                    <% } %>
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <% if (log.newBalance !==null) { %>
+                                <span class="text-slate-300 font-medium">
+                                    <%= new Intl.NumberFormat('vi-VN', { style: 'currency' , currency: 'VND'
+                                        }).format(log.newBalance) %>
+                                </span>
+                                <% } else { %>
+                                    <span class="text-slate-600">-</span>
+                                    <% } %>
+                        </td>
+                    </tr>
+                    <% }); %>
+
+                        <% if (logs.length===0) { %>
+                            <tr>
+                                <td colspan="6" class="px-6 py-12 text-center text-slate-500">
+                                    <p>Không tìm thấy nhật ký hoạt động nào.</p>
+                                </td>
+                            </tr>
+                            <% } %>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <% if (totalPages> 1) { %>
+        <%- include('../partials/pagination', { path: '/admin/activity-logs' , query: query, currentPage: currentPage,
+            totalPages: totalPages }) %>
+            <% } %>
+</div>
+
+<script>
+    function applyFilters() {
+        const actionFilter = document.getElementById('actionFilter').value;
+        const userFilter = document.getElementById('userFilterInput').value;
+        const searchInput = document.getElementById('searchInput').value;
+
+        const url = new URL(window.location.href);
+        url.searchParams.set('page', 1);
+
+        if (actionFilter && actionFilter !== 'all') {
+            url.searchParams.set('action', actionFilter);
+        } else {
+            url.searchParams.delete('action');
+        }
+
+        if (userFilter) {
+            url.searchParams.set('user_search', userFilter);
+        } else {
+            url.searchParams.delete('user_search');
+        }
+
+        if (searchInput) {
+            url.searchParams.set('search', searchInput);
+        } else {
+            url.searchParams.delete('search');
+        }
+
+        window.location.href = url.toString();
+    }
+</script>

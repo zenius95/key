@@ -10,7 +10,7 @@
                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
             </svg>
         </div>
-        <input type="text" id="productSearch" placeholder="Search products..."
+        <input type="text" id="productSearch" placeholder="Tìm kiếm sản phẩm..."
             class="bg-transparent border-none text-slate-200 text-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 block w-full pl-10 p-2.5 placeholder-slate-500 transition duration-200">
     </div>
 
@@ -22,7 +22,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4">
                     </path>
                 </svg>
-                Add Product
+                Thêm sản phẩm
             </button>
             <% } %>
     </div>
@@ -32,14 +32,14 @@
 <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-sm flex flex-col">
     <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
-            <thead class="bg-slate-850 text-xs uppercase text-slate-400 font-semibold border-b border-slate-800">
+            <thead class="bg-slate-850 text-[10px] uppercase text-slate-400 font-semibold border-b border-slate-800">
                 <tr>
-                    <th class="px-6 py-4 tracking-wider">Product Name</th>
-                    <th class="px-6 py-4 tracking-wider">Description</th>
-                    <th class="px-6 py-4 text-center tracking-wider">Packages</th>
-                    <th class="px-6 py-4 tracking-wider">Status</th>
+                    <th class="px-6 py-4 tracking-wider">Tên sản phẩm</th>
+                    <th class="px-6 py-4 tracking-wider">Mô tả</th>
+                    <th class="px-6 py-4 text-center tracking-wider">Gói</th>
+                    <th class="px-6 py-4 tracking-wider">Trạng thái</th>
                     <% if (user.role==='admin' ) { %>
-                        <th class="px-6 py-4 text-right tracking-wider">Actions</th>
+                        <th class="px-6 py-4 text-right tracking-wider">Thao tác</th>
                         <% } %>
                 </tr>
             </thead>
@@ -61,14 +61,16 @@
                         <td class="px-6 py-4">
                             <span
                                 class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium <%= p.status === 'inactive' ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' %>">
-                                <%= p.status==='inactive' ? 'Inactive' : 'Active' %>
+                                <%= p.status==='inactive' ? 'Ngừng' : 'Hoạt động' %>
                             </span>
                         </td>
                         <% if (user.role==='admin' ) { %>
                             <td class="px-6 py-4 text-right">
                                 <div class="flex items-center justify-end gap-2">
-                                    <button onclick="openModal(<%= JSON.stringify(p) %>)"
-                                        class="p-1.5 rounded-lg text-slate-400 hover:text-indigo-400 hover:bg-slate-800 transition"
+                                    <button onclick="openModal(JSON.parse(this.getAttribute('data-product')))"
+                                        data-product="<%= JSON.stringify(p).replace(/" /g, '&quot;' ) %>"
+                                        class="p-1.5 rounded-lg text-slate-400 hover:text-indigo-400 hover:bg-slate-800
+                                        transition"
                                         title="Edit">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -77,7 +79,7 @@
                                         </svg>
                                     </button>
                                     <a href="/products/delete/<%= p.id %>"
-                                        onclick="return confirm('Delete this product and all its packages?')"
+                                        onclick="return confirm('Xóa sản phẩm này và tất cả các gói liên quan?')"
                                         class="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition"
                                         title="Delete">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -94,7 +96,7 @@
                         <% if (products.length===0) { %>
                             <tr>
                                 <td colspan="5" class="px-6 py-12 text-center text-slate-500">
-                                    <p>No products found.</p>
+                                    <p>Không tìm thấy sản phẩm nào.</p>
                                 </td>
                             </tr>
                             <% } %>
@@ -128,7 +130,7 @@
                     class="relative transform overflow-hidden rounded-xl bg-slate-900 border border-slate-800 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-4xl">
 
                     <div class="px-6 py-5 border-b border-slate-800 flex justify-between items-center">
-                        <h3 class="text-lg font-bold text-white" id="modalTitle">Add Product</h3>
+                        <h3 class="text-lg font-bold text-white" id="modalTitle">Thêm sản phẩm</h3>
                         <button type="button" onclick="closeModal()" class="text-slate-400 hover:text-white transition">
                             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -144,22 +146,21 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-300 mb-1.5">Product
-                                        Name</label>
+                                    <label class="block text-sm font-medium text-slate-300 mb-1.5">Tên sản phẩm</label>
                                     <input type="text" id="p_name" required
                                         class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50">
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-300 mb-1.5">Status</label>
+                                    <label class="block text-sm font-medium text-slate-300 mb-1.5">Trạng thái</label>
                                     <select id="p_status"
                                         class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50">
-                                        <option value="active">Active</option>
-                                        <option value="inactive">Inactive</option>
+                                        <option value="active">Hoạt động</option>
+                                        <option value="inactive">Ngừng</option>
                                     </select>
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-slate-300 mb-1.5">Description</label>
+                                <label class="block text-sm font-medium text-slate-300 mb-1.5">Mô tả</label>
                                 <textarea id="p_desc" rows="4"
                                     class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50"></textarea>
                             </div>
@@ -168,8 +169,7 @@
                         <!-- Packages Section -->
                         <div class="bg-slate-950/50 rounded-xl p-4 border border-slate-800">
                             <div class="flex justify-between items-center mb-4">
-                                <h4 class="text-sm font-bold text-slate-300 uppercase tracking-wider">Packages
-                                    Configuration</h4>
+                                <h4 class="text-sm font-bold text-slate-300 uppercase tracking-wider">Cấu hình gói</h4>
                                 <button type="button" onclick="addPackageRow()"
                                     class="text-xs bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 px-3 py-1.5 rounded-lg border border-indigo-500/20 transition flex items-center gap-1 font-medium">
                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -185,10 +185,10 @@
                                     <thead
                                         class="text-xs text-slate-500 font-semibold uppercase bg-slate-900/50 border-b border-slate-800">
                                         <tr>
-                                            <th class="px-3 py-2 w-1/4">Name</th>
-                                            <th class="px-3 py-2 w-1/6">Duration (Days)</th>
-                                            <th class="px-3 py-2 w-1/6">Price (VND)</th>
-                                            <th class="px-3 py-2 w-1/6">Discount (%)</th>
+                                            <th class="px-3 py-2 w-1/4">Tên</th>
+                                            <th class="px-3 py-2 w-1/6">Thời hạn (Ngày)</th>
+                                            <th class="px-3 py-2 w-1/6">Giá (VND)</th>
+                                            <th class="px-3 py-2 w-1/6">Giảm giá (%)</th>
                                             <th class="px-3 py-2 w-10"></th>
                                         </tr>
                                     </thead>
@@ -197,14 +197,13 @@
                                     </tbody>
                                 </table>
                             </div>
-                            <div id="noPackagesMsg" class="text-center py-6 text-slate-500 italic text-xs hidden">No
-                                packages added
-                                yet. Click "Add Package" to start.</div>
+                            <div id="noPackagesMsg" class="text-center py-6 text-slate-500 italic text-xs hidden">Chưa
+                                có gói nào. Nhấn "Thêm gói" để bắt đầu.</div>
                         </div>
 
                         <div class="pt-2 flex justify-end gap-3 border-t border-slate-800 mt-4 pt-4">
                             <button type="button" onclick="closeModal()"
-                                class="px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition">Cancel</button>
+                                class="px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition">Hủy</button>
                             <button type="submit"
                                 class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-medium shadow-lg shadow-indigo-500/20 flex items-center gap-2 transition">
                                 <svg id="saveSpinner" class="animate-spin h-4 w-4 text-white hidden"
@@ -215,7 +214,7 @@
                                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                                     </path>
                                 </svg>
-                                Save Product
+                                Lưu sản phẩm
                             </button>
                         </div>
                     </form>
@@ -240,7 +239,7 @@
 
             if (product) {
                 // Edit Mode
-                title.innerText = 'Edit Product: ' + product.name;
+                title.innerText = 'Sửa sản phẩm: ' + product.name;
                 document.getElementById('p_id').value = product.id;
                 document.getElementById('p_name').value = product.name;
                 document.getElementById('p_desc').value = product.description || '';

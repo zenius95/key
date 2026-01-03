@@ -1,0 +1,102 @@
+<div class="grid grid-cols-12 gap-6">
+    <!-- Sidebar / Submenu -->
+    <div class="col-span-12 md:col-span-3">
+        <div class="bg-slate-900 rounded-xl border border-slate-800 p-4">
+            <h3 class="text-sm font-bold text-slate-400 uppercase mb-4 tracking-wider">Cấu hình</h3>
+            <nav class="space-y-1">
+                <a href="/admin/settings/deposit"
+                    class="block px-4 py-2 rounded-lg text-sm font-medium <%= (typeof subTab !== 'undefined' && subTab === 'deposit') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' %> transition">
+                    Cài đặt nạp tiền
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <div class="col-span-12 md:col-span-9">
+        <% if (typeof subTab !=='undefined' && subTab==='deposit' ) { %>
+            <div class="bg-slate-900 rounded-xl border border-slate-800 p-6 shadow-sm">
+                <h2 class="text-xl font-bold text-white mb-1">Cài đặt nạp tiền</h2>
+                <p class="text-sm text-slate-400 mb-6">Cấu hình thông tin chuyển khoản ngân hàng hiển thị cho người
+                    dùng.
+                </p>
+
+                <% if (typeof message !=='undefined' && message) { %>
+                    <div
+                        class="mb-6 p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-medium flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                        <%= message %>
+                    </div>
+                    <% } %>
+
+                        <form action="/admin/settings/deposit" method="POST" class="space-y-6">
+                            <!-- Bank Name -->
+                            <div>
+                                <label
+                                    class="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">Tên
+                                    ngân hàng (Bank Code)</label>
+                                <input type="text" name="bank_code" value="<%= settings.bank_code || '' %>"
+                                    class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition placeholder-slate-600"
+                                    placeholder="Ví dụ: MB Bank, Vietcombank">
+                            </div>
+
+                            <!-- Account Number -->
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">Số
+                                    tài
+                                    khoản</label>
+                                <input type="text" name="bank_account_number"
+                                    value="<%= settings.bank_account_number || '' %>"
+                                    class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition placeholder-slate-600 font-mono"
+                                    placeholder="0123456789">
+                            </div>
+
+                            <!-- Account Holder -->
+                            <div>
+                                <label
+                                    class="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">Chủ
+                                    tài khoản</label>
+                                <input type="text" name="bank_account_name"
+                                    value="<%= settings.bank_account_name || '' %>"
+                                    class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition placeholder-slate-600 uppercase"
+                                    placeholder="NGUYEN VAN A">
+                            </div>
+
+                            <!-- Transaction Endpoint -->
+                            <div>
+                                <label
+                                    class="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">Endpoint
+                                    Kiểm tra Giao dịch (URL)</label>
+                                <input type="text" name="transaction_endpoint"
+                                    value="<%= settings.transaction_endpoint || '' %>"
+                                    class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition placeholder-slate-600 font-mono"
+                                    placeholder="https://api.example.com/check-transactions">
+                                <p class="text-[10px] text-slate-500 mt-1">Hệ thống sẽ gọi API này để tự động nạp tiền
+                                    khi có giao dịch mới.</p>
+                            </div>
+
+                            <!-- Deposit Prefix -->
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">Cú
+                                    pháp nạp tiền (Prefix)</label>
+                                <input type="text" name="transaction_prefix"
+                                    value="<%= settings.transaction_prefix || 'NAP' %>"
+                                    class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition placeholder-slate-600 font-mono uppercase"
+                                    placeholder="NAP">
+                                <p class="text-[10px] text-slate-500 mt-1">Ví dụ: Nếu đặt là <strong>NAP</strong>, nội
+                                    dung chuyển khoản sẽ là <strong>NAP123</strong> (với 123 là ID người dùng).</p>
+                            </div>
+
+                            <div class="pt-4 border-t border-slate-800">
+                                <button type="submit"
+                                    class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-xl shadow-lg shadow-indigo-500/20 transition duration-200 transform hover:-translate-y-0.5">
+                                    Lưu cấu hình
+                                </button>
+                            </div>
+                        </form>
+            </div>
+            <% } %>
+    </div>
+</div>

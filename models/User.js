@@ -28,6 +28,15 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: true,
             unique: true
+        },
+        balance: {
+            type: DataTypes.DECIMAL(15, 0),
+            allowNull: false,
+            defaultValue: 0
+        },
+        last_login: {
+            type: DataTypes.DATE,
+            allowNull: true
         }
     });
 

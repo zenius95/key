@@ -29,11 +29,6 @@ module.exports = (sequelize) => {
             type: DataTypes.ENUM('pending', 'completed', 'cancelled', 'expired'),
             defaultValue: 'pending'
         },
-        transaction_id: {
-            type: DataTypes.STRING,
-            unique: true,
-            allowNull: true
-        },
         product_id: {
             type: DataTypes.INTEGER,
             allowNull: true
@@ -57,15 +52,6 @@ module.exports = (sequelize) => {
         payment_method: {
             type: DataTypes.STRING,
             allowNull: true
-        }
-    }, {
-        hooks: {
-            beforeCreate: (order) => {
-                if (!order.transaction_id) {
-                    const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-                    order.transaction_id = `ORD-${date}-${uid(4).toUpperCase()}`;
-                }
-            }
         }
     });
 

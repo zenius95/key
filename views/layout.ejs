@@ -39,7 +39,7 @@
                             </path>
                         </svg>
                     </div>
-                    <span class="text-lg font-bold text-white tracking-tight">Admin Console</span>
+                    <span class="text-lg font-bold text-white tracking-tight">Trang Quản Trị</span>
                 </div>
                 <!-- Links -->
                 <div class="flex items-center gap-4">
@@ -52,7 +52,7 @@
                                 d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
                             </path>
                         </svg>
-                        Logout
+                        Đăng xuất
                     </a>
                 </div>
             </div>
@@ -63,14 +63,23 @@
         <!-- We use a local variable 'activeTab' passed from the route render to determine state -->
         <div class="flex space-x-4 mb-6 border-b border-slate-800">
             <a href="/admin"
-                class="px-4 py-2 text-sm font-medium transition <%= (typeof activeTab !== 'undefined' && activeTab === 'dashboard') ? 'text-indigo-400 border-b-2 border-indigo-500' : 'text-slate-400 hover:text-slate-200' %>">Dashboard</a>
+                class="px-4 py-2 text-sm font-medium transition <%= (typeof activeTab !== 'undefined' && activeTab === 'dashboard') ? 'text-indigo-400 border-b-2 border-indigo-500' : 'text-slate-400 hover:text-slate-200' %>">Tổng
+                quan</a>
             <a href="/admin/users"
-                class="px-4 py-2 text-sm font-medium transition <%= (typeof activeTab !== 'undefined' && activeTab === 'users') ? 'text-indigo-400 border-b-2 border-indigo-500' : 'text-slate-400 hover:text-slate-200' %>">Users</a>
+                class="px-4 py-2 text-sm font-medium transition <%= (typeof activeTab !== 'undefined' && activeTab === 'users') ? 'text-indigo-400 border-b-2 border-indigo-500' : 'text-slate-400 hover:text-slate-200' %>">Người
+                dùng</a>
             <a href="/admin/products"
-                class="px-4 py-2 text-sm font-medium transition <%= (typeof activeTab !== 'undefined' && activeTab === 'products') ? 'text-indigo-400 border-b-2 border-indigo-500' : 'text-slate-400 hover:text-slate-200' %>">Products
-                & Packages</a>
+                class="px-4 py-2 text-sm font-medium transition <%= (typeof activeTab !== 'undefined' && activeTab === 'products') ? 'text-indigo-400 border-b-2 border-indigo-500' : 'text-slate-400 hover:text-slate-200' %>">Sản
+                phẩm & Gói</a>
             <a href="/admin/orders"
-                class="px-4 py-2 text-sm font-medium transition <%= (typeof activeTab !== 'undefined' && activeTab === 'orders') ? 'text-indigo-400 border-b-2 border-indigo-500' : 'text-slate-400 hover:text-slate-200' %>">Orders</a>
+                class="px-4 py-2 text-sm font-medium transition <%= (typeof activeTab !== 'undefined' && activeTab === 'orders') ? 'text-indigo-400 border-b-2 border-indigo-500' : 'text-slate-400 hover:text-slate-200' %>">Đơn
+                hàng</a>
+            <a href="/admin/activity-logs"
+                class="px-4 py-2 text-sm font-medium transition <%= (typeof activeTab !== 'undefined' && activeTab === 'activity_logs') ? 'text-indigo-400 border-b-2 border-indigo-500' : 'text-slate-400 hover:text-slate-200' %>">Nhật
+                ký</a>
+            <a href="/admin/settings/deposit"
+                class="px-4 py-2 text-sm font-medium transition <%= (typeof activeTab !== 'undefined' && activeTab === 'settings') ? 'text-indigo-400 border-b-2 border-indigo-500' : 'text-slate-400 hover:text-slate-200' %>">Cài
+                đặt</a>
         </div>
 
         <%- body %>

@@ -4,7 +4,7 @@
     <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-sm hover:border-slate-700 transition group">
         <div class="flex justify-between items-start">
             <div>
-                <p class="text-slate-500 text-sm font-medium mb-1">Active Orders</p>
+                <p class="text-slate-500 text-sm font-medium mb-1">Đơn hàng đang chạy</p>
                 <h3 class="text-2xl font-bold text-blue-400 group-hover:text-blue-300 transition">
                     <%= stats.active %>
                 </h3>
@@ -21,7 +21,7 @@
     <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-sm hover:border-slate-700 transition group">
         <div class="flex justify-between items-start">
             <div>
-                <p class="text-slate-500 text-sm font-medium mb-1">Total Orders</p>
+                <p class="text-slate-500 text-sm font-medium mb-1">Tổng đơn hàng</p>
                 <h3 class="text-2xl font-bold text-white group-hover:text-indigo-400 transition">
                     <%= stats.total %>
                 </h3>
@@ -39,7 +39,7 @@
     <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-sm hover:border-slate-700 transition group">
         <div class="flex justify-between items-start">
             <div>
-                <p class="text-slate-500 text-sm font-medium mb-1">Pending</p>
+                <p class="text-slate-500 text-sm font-medium mb-1">Chờ xử lý</p>
                 <h3 class="text-2xl font-bold text-amber-400 group-hover:text-amber-300 transition">
                     <%= stats.pending %>
                 </h3>
@@ -56,7 +56,7 @@
     <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-sm hover:border-slate-700 transition group">
         <div class="flex justify-between items-start">
             <div>
-                <p class="text-slate-500 text-sm font-medium mb-1">Cancelled</p>
+                <p class="text-slate-500 text-sm font-medium mb-1">Đã hủy</p>
                 <h3 class="text-2xl font-bold text-rose-400 group-hover:text-rose-300 transition">
                     <%= stats.cancelled %>
                 </h3>
@@ -83,8 +83,7 @@
                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
             </svg>
         </div>
-        <input type="text" id="searchInput" placeholder="Search by Transaction ID, User, Email..."
-            value="<%= searchQuery %>"
+        <input type="text" id="searchInput" placeholder="Tìm theo Order ID, User, Email..." value="<%= searchQuery %>"
             class="bg-transparent border-none text-slate-200 text-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 block w-full pl-10 p-2.5 placeholder-slate-500 transition duration-200"
             onkeydown="if(event.key === 'Enter') applyFilters()">
     </div>
@@ -95,16 +94,16 @@
             class="flex items-center gap-2 bg-slate-800/50 rounded-xl px-2 border border-slate-700/50 focus-within:ring-2 focus-within:ring-indigo-500/50 focus-within:border-indigo-500/50 transition">
             <select id="statusFilter" onchange="applyFilters()"
                 class="bg-transparent border-none text-slate-300 text-sm focus:outline-none focus:ring-0 p-2.5 w-full sm:w-auto cursor-pointer font-medium outline-none">
-                <option value="all" class="bg-slate-950" <%=statusFilter==='all' ? 'selected' : '' %>>All Status
+                <option value="all" class="bg-slate-950" <%=statusFilter==='all' ? 'selected' : '' %>>Tất cả trạng thái
                 </option>
                 <option value="pending" class="bg-slate-950 text-amber-400" <%=statusFilter==='pending' ? 'selected'
-                    : '' %>>Pending</option>
+                    : '' %>>Chờ xử lý</option>
                 <option value="completed" class="bg-slate-950 text-emerald-400" <%=statusFilter==='completed'
-                    ? 'selected' : '' %>>Completed</option>
+                    ? 'selected' : '' %>>Hoàn thành</option>
                 <option value="cancelled" class="bg-slate-950 text-rose-400" <%=statusFilter==='cancelled' ? 'selected'
-                    : '' %>>Cancelled</option>
+                    : '' %>>Đã hủy</option>
                 <option value="expired" class="bg-slate-950 text-slate-400" <%=statusFilter==='expired' ? 'selected'
-                    : '' %>>Expired</option>
+                    : '' %>>Hết hạn</option>
             </select>
         </div>
 
@@ -139,7 +138,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4">
                     </path>
                 </svg>
-                Create Order
+                Tạo đơn hàng
             </button>
             <button id="bulkDeleteBtn" onclick="deleteSelected()" style="display: none;"
                 class="bg-rose-600 hover:bg-rose-500 text-white px-4 py-2.5 rounded-xl transition shadow-lg shadow-rose-500/20 text-sm font-medium whitespace-nowrap flex items-center gap-2">
@@ -148,7 +147,7 @@
                         d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
                     </path>
                 </svg>
-                <span>Delete (<span id="selectedCount">0</span>)</span>
+                <span>Xóa (<span id="selectedCount">0</span>)</span>
             </button>
             <% } %>
     </div>
@@ -158,7 +157,7 @@
 <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-sm flex flex-col">
     <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
-            <thead class="bg-slate-850 text-xs uppercase text-slate-400 font-semibold border-b border-slate-800">
+            <thead class="bg-slate-850 text-[10px] uppercase text-slate-400 font-semibold border-b border-slate-800">
                 <tr>
                     <% if (user.role==='admin' ) { %>
                         <th class="px-6 py-4 w-[5%]">
@@ -166,16 +165,15 @@
                                 class="rounded bg-slate-800 border-slate-700 text-indigo-600 focus:ring-indigo-500 cursor-pointer w-4 h-4">
                         </th>
                         <% } %>
-                            <th class="px-6 py-4 tracking-wider">Transaction ID</th>
-                            <th class="px-6 py-4 tracking-wider">User</th>
-                            <th class="px-6 py-4 tracking-wider">Package/Product</th>
-                            <th class="px-6 py-4 text-center tracking-wider">Amount</th>
-                            <th class="px-6 py-4 text-center tracking-wider">Status</th>
-                            <th class="px-6 py-4 tracking-wider">HWID</th>
-                            <th class="px-6 py-4 tracking-wider">Created At</th>
-                            <th class="px-6 py-4 text-right tracking-wider">Expiry Date</th>
+                            <th class="px-6 py-4 tracking-wider">Order ID</th>
+                            <th class="px-6 py-4 tracking-wider">Người dùng</th>
+                            <th class="px-6 py-4 tracking-wider">Gói/Sản phẩm</th>
+                            <th class="px-6 py-4 text-center tracking-wider">Số tiền</th>
+                            <th class="px-6 py-4 text-center tracking-wider">Trạng thái</th>
+                            <th class="px-6 py-4 tracking-wider">Ngày tạo</th>
+                            <th class="px-6 py-4 text-right tracking-wider">Ngày hết hạn</th>
                             <% if (user.role==='admin' ) { %>
-                                <th class="px-6 py-4 text-right tracking-wider">Actions</th>
+                                <th class="px-6 py-4 text-right tracking-wider">Thao tác</th>
                                 <% } %>
                 </tr>
             </thead>
@@ -192,7 +190,7 @@
                                 <td class="px-6 py-4">
                                     <span
                                         class="font-mono text-xs text-slate-400 bg-slate-950 px-2 py-1 rounded border border-slate-800 select-all">
-                                        <%= order.transaction_id || order.id %>
+                                        #<%= order.id %>
                                     </span>
                                 </td>
                                 <td class="px-6 py-4">
@@ -225,9 +223,6 @@
                                         <%= order.status.charAt(0).toUpperCase() + order.status.slice(1) %>
                                     </span>
                                 </td>
-                                <td class="px-6 py-4">
-                                    <code class="text-[10px] text-slate-500 font-mono"><%= order.hwid || '-' %></code>
-                                </td>
                                 <td class="px-6 py-4 text-slate-500 text-xs">
                                     <%= new Date(order.createdAt).toLocaleDateString('vi-VN') %>
                                         <div class="text-[10px] text-slate-600">
@@ -238,10 +233,10 @@
                                 <td class="px-6 py-4 text-right text-xs">
                                     <div class="text-indigo-400 font-medium">
                                         <%= order.expiry_date ? new Date(order.expiry_date).toLocaleDateString('vi-VN')
-                                            : 'Unlimited' %>
+                                            : 'Vĩnh viễn' %>
                                     </div>
                                     <% if (order.expiry_date && new Date(order.expiry_date) < new Date()) { %>
-                                        <div class="text-[10px] text-rose-500/70">Expired</div>
+                                        <div class="text-[10px] text-rose-500/70">Hết hạn</div>
                                         <% } %>
                                 </td>
                                 <% if (user.role==='admin' ) { %>
@@ -278,26 +273,9 @@
 
     <!-- Pagination -->
     <% if (totalPages> 1) { %>
-        <div class="px-6 py-4 border-t border-slate-800 flex items-center justify-between">
-            <div class="text-sm text-slate-500">
-                Page <span class="font-medium text-white">
-                    <%= currentPage %>
-                </span> / <span class="font-medium text-white">
-                    <%= totalPages %>
-                </span>
-            </div>
-            <div class="flex gap-2">
-                <% if (currentPage> 1) { %>
-                    <a href="#" onclick="changePage(<%= currentPage - 1 %>); return false;"
-                        class="px-3 py-1.5 rounded-lg border border-slate-700 text-slate-400 hover:text-white hover:bg-slate-800 text-xs font-medium transition">Prev</a>
-                    <% } %>
-                        <% if (currentPage < totalPages) { %>
-                            <a href="#" onclick="changePage(<%= currentPage + 1 %>); return false;"
-                                class="px-3 py-1.5 rounded-lg border border-slate-700 text-slate-400 hover:text-white hover:bg-slate-800 text-xs font-medium transition">Next</a>
-                            <% } %>
-            </div>
-        </div>
-        <% } %>
+        <%- include('../partials/pagination', { path: '/admin/orders' , query: query, currentPage: currentPage,
+            totalPages: totalPages }) %>
+            <% } %>
 </div>
 
 
@@ -312,7 +290,7 @@
                     class="relative transform overflow-hidden rounded-xl bg-slate-900 border border-slate-800 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
 
                     <div class="px-6 py-5 border-b border-slate-800 flex justify-between items-center">
-                        <h3 class="text-base font-semibold leading-6 text-white">Create New Order</h3>
+                        <h3 class="text-base font-semibold leading-6 text-white">Tạo đơn hàng mới</h3>
                         <button type="button" onclick="closeModal()" class="text-slate-400 hover:text-white transition">
                             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -324,7 +302,7 @@
                     <form action="/orders/create" method="POST" class="p-6 space-y-5">
 
                         <div>
-                            <label class="block text-sm font-medium text-slate-300 mb-1.5">Select User</label>
+                            <label class="block text-sm font-medium text-slate-300 mb-1.5">Chọn người dùng</label>
                             <select name="user_id" required
                                 class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50">
                                 <% allUsers.forEach(function(u) { %>
@@ -336,7 +314,7 @@
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-slate-300 mb-1.5">Select Package</label>
+                            <label class="block text-sm font-medium text-slate-300 mb-1.5">Chọn gói</label>
                             <select name="package_id" required
                                 class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50">
                                 <% allPackages.forEach(function(pkg) { %>
@@ -351,10 +329,10 @@
 
                         <div class="pt-2 flex justify-end gap-3">
                             <button type="button" onclick="closeModal()"
-                                class="px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition">Cancel</button>
+                                class="px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition">Hủy</button>
                             <button type="submit"
-                                class="px-4 py-2 rounded-lg text-sm font-medium bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/20 transition">Create
-                                Order</button>
+                                class="px-4 py-2 rounded-lg text-sm font-medium bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/20 transition">Tạo
+                                đơn hàng</button>
                         </div>
                     </form>
                 </div>
@@ -373,7 +351,7 @@
                     class="relative transform overflow-hidden rounded-xl bg-slate-900 border border-slate-800 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
 
                     <div class="px-6 py-5 border-b border-slate-800 flex justify-between items-center">
-                        <h3 class="text-base font-semibold leading-6 text-white">Edit Order</h3>
+                        <h3 class="text-base font-semibold leading-6 text-white">Sửa đơn hàng</h3>
                         <button type="button" onclick="closeEditModal()"
                             class="text-slate-400 hover:text-white transition">
                             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -387,34 +365,35 @@
                         <input type="hidden" name="id" id="edit_id">
 
                         <div>
-                            <label class="block text-sm font-medium text-slate-300 mb-1.5">Status</label>
+                            <label class="block text-sm font-medium text-slate-300 mb-1.5">Trạng thái</label>
                             <select name="status" id="edit_status"
                                 class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50">
-                                <option value="pending">Pending</option>
-                                <option value="completed">Completed</option>
-                                <option value="cancelled">Cancelled</option>
+                                <option value="pending">Chờ xử lý</option>
+                                <option value="completed">Hoàn thành</option>
+                                <option value="cancelled">Đã hủy</option>
                             </select>
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-slate-300 mb-1.5">Amount (VND)</label>
+                            <label class="block text-sm font-medium text-slate-300 mb-1.5">Số tiền (VND)</label>
                             <input type="number" name="amount" id="edit_amount" required
                                 class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50">
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-slate-300 mb-1.5">Payment Method</label>
+                            <label class="block text-sm font-medium text-slate-300 mb-1.5">Phương thức thanh
+                                toán</label>
                             <input type="text" name="payment_method" id="edit_payment_method"
                                 class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
-                                placeholder="e.g. Bank Transfer, Wallet">
+                                placeholder="ví dụ: Chuyển khoản, Số dư ví">
                         </div>
 
                         <div class="pt-2 flex justify-end gap-3">
                             <button type="button" onclick="closeEditModal()"
-                                class="px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition">Cancel</button>
+                                class="px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition">Hủy</button>
                             <button type="submit"
-                                class="px-4 py-2 rounded-lg text-sm font-medium bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/20 transition">Save
-                                Changes</button>
+                                class="px-4 py-2 rounded-lg text-sm font-medium bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/20 transition">Lưu
+                                thay đổi</button>
                         </div>
                     </form>
                 </div>
@@ -428,7 +407,7 @@
             // Initialize Shared Logic
             new TableManager({
                 deleteUrl: '/orders/delete-bulk',
-                confirmMessage: 'Are you sure you want to delete {count} orders? This cannot be undone.'
+                confirmMessage: 'Bạn có chắc chắn muốn xóa {count} đơn hàng? Hành động này không thể hoàn tác.'
             });
 
             // Filter Logic

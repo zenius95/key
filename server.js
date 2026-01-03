@@ -4,7 +4,9 @@ const path = require('path');
 const { uid } = require('uid');
 const expressLayouts = require('express-ejs-layouts');
 require('dotenv').config();
-const db = require('./models'); // Load central DB
+const db = require('./models');
+const activityActions = require('./config/activity_actions');
+// Load central DB
 const { signData } = require('./utils/crypto');
 const { hashPassword, comparePassword } = require('./utils/auth');
 const { Op } = require('sequelize');
@@ -73,6 +75,30 @@ db.sequelize.sync({ alter: true }).then(() => {
 });
 
 // Seed Admin Function
+
+// --- HELPER FUNCTIONS ---
+// --- HELPER FUNCTIONS ---
+async function logActivity(userId, action, balanceChange = 0, newBalance = 0, req, transactionId = null) {
+    try {
+        let ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+        if (ipAddress.substr(0, 7) == "::ffff:") {
+            ipAddress = ipAddress.substr(7)
+        }
+        let userAgent = req.headers['user-agent'];
+
+        await db.ActivityLog.create({
+            userId,
+            action,
+            transactionId,
+            balanceChange,
+            newBalance,
+            ipAddress,
+            userAgent
+        });
+    } catch (error) {
+        console.error('Error logging activity:', error);
+    }
+}
 
 // Routes
 
@@ -146,9 +172,16 @@ app.post('/login', async (req, res) => {
         }
 
         req.session.userId = user.id;
-        req.session.email = user.email; // Store email in session
-        req.session.full_name = user.full_name;
         req.session.role = user.role;
+        req.session.full_name = user.full_name;
+        req.session.balance = user.balance;
+
+        // Update last login time
+        await user.update({ last_login: new Date() });
+
+        // Log Login
+        await logActivity(user.id, 'LOGIN', 0, user.balance, req);
+
         res.redirect('/admin');
     } catch (error) {
         console.error(error);
@@ -215,7 +248,7 @@ app.post('/api/verify', async (req, res) => {
             expiry: order.expiry_date,
             client: user.full_name,
             product: order.product_name || 'Product',
-            transaction_id: order.transaction_id,
+            transaction_id: null, // Removed from Order
             hwid: order.hwid
         };
 
@@ -324,14 +357,14 @@ app.get('/admin', requireAuth, async (req, res) => {
             }
 
             const revenueWhere = {
-                status: { [Op.in]: ['completed', 'cancelled'] },
+                action: 'DEPOSIT',
                 ...whereClause
             };
 
             const [usersCount, ordersCount, revenueSum] = await Promise.all([
                 db.User.count({ where: whereClause }),
                 db.Order.count({ where: whereClause }),
-                db.Order.sum('amount', { where: revenueWhere })
+                db.ActivityLog.sum('balanceChange', { where: revenueWhere })
             ]);
 
             return {
@@ -406,7 +439,8 @@ app.get('/admin', requireAuth, async (req, res) => {
             user: req.session,
             stats: statsData,
             activeTab: 'dashboard',
-            layout: 'layout'
+            layout: 'layout',
+            query: req.query
         });
     } catch (error) {
         console.error(error);
@@ -430,7 +464,9 @@ app.get('/admin/users', requireAuth, async (req, res) => {
         if (search) {
             whereClause[Op.or] = [
                 { full_name: { [Op.like]: `%${search}%` } },
-                { email: { [Op.like]: `%${search}%` } }
+                { email: { [Op.like]: `%${search}%` } },
+                { license_key: { [Op.like]: `%${search}%` } },
+                { phone: { [Op.like]: `%${search}%` } }
             ];
         }
 
@@ -468,7 +504,8 @@ app.get('/admin/users', requireAuth, async (req, res) => {
                 user: userCount
             },
             activeTab: 'users',
-            layout: 'layout'
+            layout: 'layout',
+            query: req.query
         });
 
     } catch (error) {
@@ -478,19 +515,43 @@ app.get('/admin/users', requireAuth, async (req, res) => {
 });
 
 // Update User
+// Update User
 app.post('/users/update', requireAuth, async (req, res) => {
     try {
-        const { id, full_name, phone, email, role } = req.body;
+        const { id, full_name, phone, email, role, balance_adjustment } = req.body;
 
-        // Prevent editing own role if you want to enforce security, but for now allow it as requested.
-        // Actually, preventing user from changing their own role to non-admin might be wise, but keeping it simple.
+        const user = await db.User.findByPk(id);
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
 
-        await db.User.update({
+        // Update basic info
+        await user.update({
             full_name,
             phone,
             email,
             role
-        }, { where: { id } });
+        });
+
+        // Log Info Update
+        await logActivity(req.session.userId, 'USER_UPDATE', 0, user.balance, req);
+
+        // Handle deferred balance update
+        const adjustment = parseFloat(balance_adjustment);
+        if (!isNaN(adjustment) && adjustment !== 0) {
+            await user.increment('balance', { by: adjustment });
+
+            // Re-fetch updated user for accurate balance
+            const updatedUser = await db.User.findByPk(id);
+
+            if (adjustment > 0) {
+                const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+                const txnId = `TXN-${date}-${uid(6).toUpperCase()}`;
+                await logActivity(req.session.userId, 'DEPOSIT', adjustment, updatedUser.balance, req, txnId);
+            } else {
+                await logActivity(req.session.userId, 'BALANCE_UPDATE', adjustment, updatedUser.balance, req);
+            }
+        }
 
         res.redirect('/admin/users');
     } catch (error) {
@@ -544,6 +605,36 @@ app.get('/users/delete/:id', requireAuth, async (req, res) => {
     }
 });
 
+
+// Admin: Manage User Balance
+app.post('/api/admin/users/:id/balance', requireAuth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { amount, type, note } = req.body; // type: 'add' or 'subtract'
+
+        const user = await db.User.findByPk(id);
+        if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+        const value = parseFloat(amount);
+        if (isNaN(value) || value <= 0) return res.status(400).json({ success: false, message: 'Invalid amount' });
+
+        let newBalance = parseFloat(user.balance);
+        if (type === 'add') {
+            newBalance += value;
+        } else if (type === 'subtract') {
+            newBalance -= value;
+        }
+
+        await user.update({ balance: newBalance });
+
+        await logActivity(req.session.userId, type === 'add' ? 'DEPOSIT' : 'BALANCE_UPDATE', type === 'add' ? value : -value, newBalance, req, type === 'add' ? `TXN-${uid(10).toUpperCase()}` : null);
+
+        res.json({ success: true, newBalance, message: 'Balance updated successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Error updating balance' });
+    }
+});
 
 // --- PRODUCT MANAGEMENT ROUTES ---
 
@@ -667,22 +758,15 @@ app.get('/admin/orders', requireAuth, async (req, res) => {
             whereClause.status = status;
         }
 
-        // Filter by Product Name (via snapshot) or better, by joining Product via Package?
-        // Since we store product_name snapshot, we can allow filtering by exact name match if implemented,
-        // or partial match. But user asked for "Filter by Product".
-        // Let's support searching product_name or direct match if passed.
+        // If product_id is provided, filter by product_id
         if (product_id) {
-            // Find product name first? Or just search snapshot.
-            // Simplified: Filter by product_name string passed in query
-            whereClause.product_name = { [Op.like]: `%${product_id}%` }; // This is hacky. Better to pass exact name or ID.
-            // Ideally we store product_id in Order, but we didn't add thatcolumn, only product_name snapshot.
-            // We'll stick to searching transaction_id or user.
+            whereClause.product_id = parseInt(product_id);
         }
 
         if (search) {
             const searchCondition = [];
-            // Match Transaction ID
-            searchCondition.push({ transaction_id: { [Op.like]: `%${search}%` } });
+            // Match Transaction ID - REMOVED
+            // searchCondition.push({ transaction_id: { [Op.like]: `%${search}%` } });
 
             // Match User
             searchCondition.push(
@@ -749,11 +833,82 @@ app.get('/admin/orders', requireAuth, async (req, res) => {
             statusFilter: status || 'all',
             productFilter: product_id || '',
             activeTab: 'orders',
-            layout: 'layout'
+            layout: 'layout',
+            query: req.query
         });
     } catch (error) {
         console.error(error);
         res.status(500).send('Database Error');
+    }
+});
+
+// User Purchase Package (Pay with Credit)
+app.post('/api/user/purchase', requireAuth, async (req, res) => {
+    const t = await db.sequelize.transaction();
+    try {
+        const { packageId, productId } = req.body;
+        const userId = req.session.userId;
+
+        if (!packageId || !productId) return res.status(400).json({ success: false, message: 'Missing package or product info' });
+
+        const user = await db.User.findByPk(userId, { transaction: t });
+        const pkg = await db.Package.findByPk(packageId, { transaction: t });
+        const product = await db.Product.findByPk(productId, { transaction: t });
+
+        if (!user || !pkg || !product) {
+            await t.rollback();
+            return res.status(404).json({ success: false, message: 'Invalid data' });
+        }
+
+        const price = parseFloat(pkg.final_price);
+
+        // Check Balance
+        if (parseFloat(user.balance) < price) {
+            await t.rollback();
+            return res.status(400).json({ success: false, message: 'Số dư không đủ. Vui lòng nạp thêm tiền.' });
+        }
+
+        // Deduct Balance
+        const newBalance = parseFloat(user.balance) - price;
+        await user.update({ balance: newBalance }, { transaction: t });
+
+        // Calculate Expiry Function
+        const calculateExpiry = (days) => {
+            const date = new Date();
+            date.setDate(date.getDate() + days);
+            return date;
+        };
+
+        // Create Order
+        const order = await db.Order.create({
+            user_id: user.id,
+            package_name: pkg.name,
+            amount: price,
+            duration: pkg.duration,
+            status: 'completed',
+            product_id: product.id,
+            product_name: product.name,
+            package_id: pkg.id,
+            payment_method: 'credit',
+            expiry_date: calculateExpiry(pkg.duration)
+        }, { transaction: t });
+
+        await t.commit();
+
+        // Log Purchase
+        await logActivity(user.id, 'PURCHASE', -price, newBalance, req);
+
+        // Update session balance
+        req.session.balance = newBalance;
+
+        req.session.save(err => {
+            res.json({ success: true, message: 'Thanh toán thành công!', orderId: order.id });
+        });
+
+    } catch (error) {
+        if (!t.finished) await t.rollback();
+        console.error('Purchase error:', error);
+        res.status(500).json({ success: false, message: 'Giao dịch thất bại' });
     }
 });
 
@@ -942,13 +1097,13 @@ app.get('/api/admin/revenue-stats', requireAuth, async (req, res) => {
             }
         }
 
-        const stats = await db.Order.findAll({
+        const stats = await db.ActivityLog.findAll({
             attributes: [
                 [db.sequelize.fn('DATE_FORMAT', db.sequelize.col('createdAt'), groupByFormat), 'timeLabel'],
-                [db.sequelize.fn('SUM', db.sequelize.col('amount')), 'total']
+                [db.sequelize.fn('SUM', db.sequelize.col('balanceChange')), 'total']
             ],
             where: {
-                status: { [Op.in]: ['completed', 'cancelled'] },
+                action: 'DEPOSIT',
                 createdAt: { [Op.gte]: startDate }
             },
             group: ['timeLabel'],
@@ -981,6 +1136,207 @@ app.get('/api/admin/revenue-stats', requireAuth, async (req, res) => {
     } catch (error) {
         console.error('Revenue stats error:', error);
         res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Settings Routes
+app.get('/admin/settings', requireAuth, (req, res) => {
+    res.redirect('/admin/settings/deposit');
+});
+
+app.get('/admin/settings/deposit', requireAuth, async (req, res) => {
+    try {
+        if (req.session.role !== 'admin') return res.status(403).send('Access Denied');
+
+        const settingsRows = await db.Setting.findAll();
+        const settings = {};
+        settingsRows.forEach(s => settings[s.key] = s.value);
+
+        res.render('admin/settings', {
+            user: req.session,
+            activeTab: 'settings',
+            subTab: 'deposit',
+            settings,
+            message: req.query.message,
+            layout: 'layout'
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error loading settings');
+    }
+});
+
+app.post('/admin/settings/deposit', requireAuth, async (req, res) => {
+    try {
+        if (req.session.role !== 'admin') return res.status(403).send('Access Denied');
+
+        const { bank_code, bank_account_number, bank_account_name, transaction_endpoint, transaction_prefix } = req.body;
+
+        await Promise.all([
+            db.Setting.upsert({ key: 'bank_code', value: bank_code }),
+            db.Setting.upsert({ key: 'bank_account_number', value: bank_account_number }),
+            db.Setting.upsert({ key: 'bank_account_name', value: bank_account_name }),
+            db.Setting.upsert({ key: 'transaction_endpoint', value: transaction_endpoint }),
+            db.Setting.upsert({ key: 'transaction_prefix', value: transaction_prefix })
+        ]);
+
+        res.redirect('/admin/settings/deposit?message=Đã lưu cấu hình thành công!');
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error saving settings');
+    }
+});
+
+// Cron Job: Check Transactions
+app.get('/api/cron/check-transactions', async (req, res) => {
+    try {
+        const settings = await db.Setting.findAll();
+        const config = {};
+        settings.forEach(s => config[s.key] = s.value);
+
+        const endpoint = config.transaction_endpoint;
+        const prefix = config.transaction_prefix || 'NAP';
+
+        if (!endpoint) {
+            return res.json({ status: false, message: 'Transaction endpoint not configured' });
+        }
+
+        // Use dynamic import for fetch if needed, or global fetch (Node 18+)
+        // Assuming global fetch is available.
+        const response = await fetch(endpoint);
+        const data = await response.json();
+
+        if (!data.status || !data.transactions) {
+            return res.json({ status: false, message: 'Invalid API response' });
+        }
+
+        let processedCount = 0;
+        const processedIds = [];
+
+        for (const trans of data.transactions) {
+            if (trans.type !== 'IN') continue;
+
+            const transactionId = String(trans.transactionID);
+            const amount = parseFloat(trans.amount);
+            const description = trans.description;
+
+            // Check if processed
+            const exists = await db.ActivityLog.findOne({
+                where: {
+                    transactionId: transactionId,
+                    action: 'DEPOSIT'
+                }
+            });
+
+            if (exists) continue;
+
+            // Parse User ID from description (PREFIX<id> or PREFIX <id>)
+            // Escape special regex chars in prefix just in case
+            const escapedPrefix = prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex = new RegExp(`${escapedPrefix}\\s*(\\d+)`, 'i');
+
+            const match = description.match(regex);
+            if (!match) continue;
+
+            const userId = parseInt(match[1]);
+
+            const user = await db.User.findByPk(userId);
+            if (!user) continue;
+
+            // Update Balance
+            user.balance = parseFloat(user.balance) + amount;
+            await user.save();
+
+            // Log Activity
+            await logActivity(user.id, 'DEPOSIT', amount, transactionId);
+
+            processedCount++;
+            processedIds.push(transactionId);
+        }
+
+        res.json({
+            status: true,
+            message: 'Success',
+            processed: processedCount,
+            ids: processedIds
+        });
+
+    } catch (error) {
+        console.error('Cron Error:', error);
+        res.status(500).json({ status: false, message: error.message });
+    }
+});
+
+// Admin: Activity Logs
+app.get('/admin/activity-logs', requireAuth, async (req, res) => {
+    try {
+        if (req.session.role !== 'admin') {
+            return res.status(403).send('Access Denied');
+        }
+
+        const page = parseInt(req.query.page) || 1;
+        const limit = 20;
+        const offset = (page - 1) * limit;
+        const { user_search, action: actionFilter, search } = req.query;
+
+        const whereClause = {};
+
+        // Filter by Action
+        if (actionFilter && actionFilter !== 'all') {
+            whereClause.action = actionFilter;
+        }
+
+        // Search (Transaction ID Only now as Description is gone)
+        if (search) {
+            whereClause[Op.or] = [
+                { transactionId: { [Op.like]: `%${search}%` } }
+            ];
+        }
+
+        // Filter by User (Search)
+        const userWhere = {};
+        if (user_search) {
+            userWhere[Op.or] = [
+                { full_name: { [Op.like]: `%${user_search}%` } },
+                { email: { [Op.like]: `%${user_search}%` } }
+            ];
+        }
+
+        // Includes
+        const include = [
+            {
+                model: db.User,
+                as: 'user',
+                attributes: ['id', 'full_name', 'email'],
+                where: user_search ? userWhere : undefined,
+                required: !!user_search // Inner join if filtering by user
+            }
+        ];
+
+        const { count, rows } = await db.ActivityLog.findAndCountAll({
+            where: whereClause,
+            include,
+            order: [['createdAt', 'DESC']],
+            limit,
+            offset
+        });
+
+        res.render('admin/activity_logs', {
+            logs: rows,
+            currentPage: page,
+            totalPages: Math.ceil(count / limit),
+            actionFilter,
+            userSearch: user_search,
+            search,
+            user: req.session,
+            activeTab: 'activity_logs',
+            layout: 'layout',
+            query: req.query,
+            activityActions // Pass config to view
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error fetching logs');
     }
 });
 

@@ -4,7 +4,7 @@
     <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-sm hover:border-slate-700 transition group">
         <div class="flex justify-between items-start">
             <div>
-                <p class="text-slate-500 text-sm font-medium mb-1">Total Users</p>
+                <p class="text-slate-500 text-sm font-medium mb-1">Tổng người dùng</p>
                 <h3 class="text-2xl font-bold text-white group-hover:text-indigo-400 transition">
                     <%= stats.total %>
                 </h3>
@@ -23,7 +23,7 @@
     <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-sm hover:border-slate-700 transition group">
         <div class="flex justify-between items-start">
             <div>
-                <p class="text-slate-500 text-sm font-medium mb-1">Administrators</p>
+                <p class="text-slate-500 text-sm font-medium mb-1">Quản trị viên</p>
                 <h3 class="text-2xl font-bold text-white group-hover:text-emerald-400 transition">
                     <%= stats.admin %>
                 </h3>
@@ -42,7 +42,7 @@
     <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-sm hover:border-slate-700 transition group">
         <div class="flex justify-between items-start">
             <div>
-                <p class="text-slate-500 text-sm font-medium mb-1">Regular Users</p>
+                <p class="text-slate-500 text-sm font-medium mb-1">Người dùng thường</p>
                 <h3 class="text-2xl font-bold text-white group-hover:text-rose-400 transition">
                     <%= stats.user %>
                 </h3>
@@ -88,12 +88,12 @@
             </div>
             <select id="roleFilter" onchange="applyFilters()"
                 class="bg-transparent border-none text-slate-300 text-sm focus:outline-none focus:ring-0 p-2.5 w-full sm:w-auto cursor-pointer font-medium outline-none">
-                <option value="all" class="bg-slate-950" <%=roleFilter==='all' ? 'selected' : '' %>>All Roles
+                <option value="all" class="bg-slate-950" <%=roleFilter==='all' ? 'selected' : '' %>>Tất cả vai trò
                 </option>
                 <option value="admin" class="bg-slate-950 text-indigo-400" <%=roleFilter==='admin' ? 'selected' : '' %>
-                    >Admin</option>
+                    >Quản trị viên</option>
                 <option value="user" class="bg-slate-950 text-slate-400" <%=roleFilter==='user' ? 'selected' : '' %>
-                    >User</option>
+                    >Người dùng</option>
             </select>
         </div>
 
@@ -125,17 +125,19 @@
 <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-sm flex flex-col">
     <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
-            <thead class="bg-slate-850 text-xs uppercase text-slate-400 font-semibold border-b border-slate-800">
+            <thead class="bg-slate-850 text-[10px] uppercase text-slate-400 font-semibold border-b border-slate-800">
                 <tr>
                     <th class="px-6 py-4 w-[5%]">
                         <input type="checkbox" id="selectAll" onclick="toggleSelectAll()"
                             class="rounded bg-slate-800 border-slate-700 text-indigo-600 focus:ring-indigo-500 cursor-pointer w-4 h-4">
                     </th>
-                    <th class="px-6 py-4 tracking-wider w-[20%]">Full Name</th>
+                    <th class="px-6 py-4 tracking-wider w-[20%]">Họ tên</th>
                     <th class="px-6 py-4 tracking-wider w-[20%]">Email</th>
-                    <th class="px-6 py-4 tracking-wider w-[25%]">License Key</th>
-                    <th class="px-6 py-4 tracking-wider w-[15%]">Role</th>
-                    <th class="px-6 py-4 tracking-wider w-[10%] text-right">Actions</th>
+                    <th class="px-6 py-4 tracking-wider w-[15%]">Số dư</th>
+                    <th class="px-6 py-4 tracking-wider w-[15%]">Ngày tạo</th>
+                    <th class="px-6 py-4 tracking-wider w-[15%]">Đăng nhập lần cuối</th>
+                    <th class="px-6 py-4 tracking-wider w-[15%]">Vai trò</th>
+                    <th class="px-6 py-4 tracking-wider w-[10%] text-right">Thao tác</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-800 text-sm" id="userTableBody">
@@ -143,7 +145,7 @@
                     <tr class="hover:bg-slate-800/50 transition duration-150 user-row">
                         <td class="px-6 py-4">
                             <input type="checkbox" value="<%= u.id %>"
-                                onclick="handleRowSelect(this, event, <%= index %>)"
+                                onclick="handleRowSelect(this, event, parseInt('<%= index %>'))"
                                 class="row-checkbox rounded bg-slate-800 border-slate-700 text-indigo-600 focus:ring-indigo-500 cursor-pointer w-4 h-4">
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
@@ -153,7 +155,12 @@
                                     <%= (u.full_name || u.email || '?' ).charAt(0).toUpperCase() %>
                                 </div>
                                 <div class="font-medium text-slate-200">
-                                    <%= u.full_name || 'N/A' %>
+                                    <div>
+                                        <%= u.full_name || 'N/A' %>
+                                    </div>
+                                    <div class="text-[10px] text-slate-500 font-mono mt-0.5">
+                                        <%= u.license_key || 'N/A' %>
+                                    </div>
                                 </div>
                             </div>
                         </td>
@@ -161,8 +168,16 @@
                             <%= u.email %>
                         </td>
                         <td class="px-6 py-4">
-                            <code
-                                class="text-xs bg-slate-950 px-2 py-1 rounded border border-slate-800 text-slate-500"><%= u.license_key || 'N/A' %></code>
+                            <span class="text-emerald-400 font-medium whitespace-nowrap">
+                                <%= new Intl.NumberFormat('vi-VN', { style: 'currency' , currency: 'VND'
+                                    }).format(u.balance || 0) %>
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-slate-400 whitespace-nowrap text-xs">
+                            <%= new Date(u.createdAt).toLocaleDateString('vi-VN') %>
+                        </td>
+                        <td class="px-6 py-4 text-slate-400 whitespace-nowrap text-xs">
+                            <%= u.last_login ? new Date(u.last_login).toLocaleString('vi-VN') : 'Chưa đăng nhập' %>
                         </td>
                         <td class="px-6 py-4">
                             <% if (u.role==='admin' ) { %>
@@ -180,7 +195,7 @@
                         <td class="px-6 py-4 text-right">
                             <div class="flex items-center justify-end gap-2">
                                 <button
-                                    onclick="openEditModal('<%= u.id %>', '<%= u.full_name %>', '<%= u.email %>', '<%= u.phone %>', '<%= u.role %>')"
+                                    onclick="openEditModal('<%= u.id %>', '<%= u.full_name %>', '<%= u.email %>', '<%= u.phone %>', '<%= u.role %>', '<%= u.balance %>')"
                                     class="p-1.5 rounded-lg text-slate-400 hover:text-indigo-400 hover:bg-slate-800 transition"
                                     title="Edit">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -190,7 +205,7 @@
                                     </svg>
                                 </button>
                                 <a href="/users/delete/<%= u.id %>"
-                                    onclick="return confirm('Are you sure you want to delete this user?')"
+                                    onclick="return confirm('Bạn có chắc chắn muốn xóa người dùng này?')"
                                     class="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition"
                                     title="Delete">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -207,7 +222,7 @@
                         <% if (users.length===0) { %>
                             <tr>
                                 <td colspan="6" class="px-6 py-12 text-center text-slate-500">
-                                    <p>No users found.</p>
+                                    <p>Không tìm thấy người dùng nào.</p>
                                 </td>
                             </tr>
                             <% } %>
@@ -217,45 +232,39 @@
 
     <!-- Pagination -->
     <% if (totalPages> 1) { %>
-        <div class="px-6 py-4 border-t border-slate-800 flex items-center justify-between">
-            <div class="text-sm text-slate-500">
-                Page <span class="font-medium text-white">
-                    <%= currentPage %>
-                </span> / <span class="font-medium text-white">
-                    <%= totalPages %>
-                </span>
-            </div>
-            <div class="flex gap-2">
-                <% const buildUrl=(p)=> `/users?page=${p}&search=${search}`; %>
-
-                    <% if (currentPage> 1) { %>
-                        <a href="<%= buildUrl(currentPage - 1) %>"
-                            class="px-3 py-1.5 rounded-lg border border-slate-700 text-slate-400 hover:text-white hover:bg-slate-800 text-xs font-medium transition">Prev</a>
-                        <% } %>
-
-                            <% if (currentPage < totalPages) { %>
-                                <a href="<%= buildUrl(currentPage + 1) %>"
-                                    class="px-3 py-1.5 rounded-lg border border-slate-700 text-slate-400 hover:text-white hover:bg-slate-800 text-xs font-medium transition">Next</a>
-                                <% } %>
-            </div>
-        </div>
-        <% } %>
-
+        <%- include('../partials/pagination', { path: '/admin/users' , query: query, currentPage: currentPage,
+            totalPages: totalPages }) %>
+            <% } %>
 </div>
 
 
-<!-- Edit User Modal -->
+<!-- Edit User Modal (Premium Design) -->
 <div id="editModalOverlay" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog"
     aria-modal="true">
-    <div class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm transition-opacity" onclick="closeEditModal()"></div>
-    <div class="fixed inset-0 z-10 overflow-y-auto">
-        <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-            <div
-                class="relative transform overflow-hidden rounded-xl bg-slate-900 border border-slate-800 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm transition-opacity" onclick="closeEditModal()"></div>
 
-                <div class="px-6 py-5 border-b border-slate-800 flex justify-between items-center">
-                    <h3 class="text-base font-semibold leading-6 text-white" id="modal-title">Edit User</h3>
-                    <button onclick="closeEditModal()" class="text-slate-400 hover:text-white transition">
+    <!-- Modal Panel -->
+    <div class="fixed inset-0 z-10 overflow-y-auto">
+        <div class="flex min-h-full items-center justify-center p-4 text-center">
+            <div
+                class="relative transform overflow-hidden rounded-2xl bg-slate-900/90 backdrop-blur-xl border border-slate-700/50 text-left shadow-2xl shadow-indigo-500/10 transition-all sm:w-full sm:max-w-lg">
+
+                <!-- Header -->
+                <div
+                    class="px-6 py-5 border-b border-slate-700/50 flex justify-between items-center bg-gradient-to-r from-slate-800/50 to-transparent">
+                    <h3 class="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+                        <span class="p-1.5 rounded-lg bg-indigo-500/10 text-indigo-400">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                                </path>
+                            </svg>
+                        </span>
+                        User Profile
+                    </h3>
+                    <button onclick="closeEditModal()"
+                        class="text-slate-400 hover:text-white transition p-1 hover:bg-slate-700/50 rounded-lg">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M6 18L18 6M6 6l12 12"></path>
@@ -263,42 +272,138 @@
                     </button>
                 </div>
 
-                <form action="/users/update" method="POST" class="p-6 space-y-5">
+                <form action="/users/update" method="POST">
                     <input type="hidden" name="id" id="edit_id">
+                    <input type="hidden" name="balance_adjustment" id="edit_balance_adjustment" value="0">
 
-                    <div>
-                        <label class="block text-sm font-medium text-slate-300 mb-1.5">Full Name</label>
-                        <input type="text" name="full_name" id="edit_full_name" required
-                            class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50">
+                    <div class="p-6 space-y-6">
+                        <!-- Info Section -->
+                        <div class="space-y-4">
+                            <div>
+                                <label
+                                    class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Thông
+                                    tin tài khoản</label>
+                                <div class="space-y-3">
+                                    <input type="text" name="full_name" id="edit_full_name" required
+                                        placeholder="Họ và tên"
+                                        class="w-full bg-slate-950/50 border border-slate-700/50 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition">
+
+                                    <input type="email" name="email" id="edit_email" required
+                                        placeholder="Địa chỉ Email"
+                                        class="w-full bg-slate-950/50 border border-slate-700/50 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label
+                                        class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Số
+                                        điện thoại</label>
+                                    <input type="text" name="phone" id="edit_phone" placeholder="Số điện thoại"
+                                        class="w-full bg-slate-950/50 border border-slate-700/50 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition">
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Vai
+                                        trò</label>
+                                    <div class="relative">
+                                        <select name="role" id="edit_role"
+                                            class="w-full bg-slate-950/50 border border-slate-700/50 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition appearance-none cursor-pointer">
+                                            <option value="admin">Quản trị viên</option>
+                                            <option value="user">Người dùng thường</option>
+                                        </select>
+                                        <div
+                                            class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 9l-7 7-7-7"></path>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Wallet Section -->
+                        <div class="pt-2">
+                            <div
+                                class="bg-gradient-to-br from-slate-900 to-slate-800/80 rounded-2xl p-0.5 border border-slate-700/50 shadow-lg group hover:border-indigo-500/30 transition duration-300">
+                                <div
+                                    class="bg-slate-900/80 rounded-[14px] p-5 backdrop-blur-sm relative overflow-hidden">
+                                    <!-- Decorative Glow -->
+                                    <div
+                                        class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-indigo-500/10 blur-2xl rounded-full pointer-events-none">
+                                    </div>
+
+                                    <div class="flex justify-between items-end mb-5 relative z-10">
+                                        <div class="flex items-center gap-3">
+                                            <div
+                                                class="p-2 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 rounded-xl text-emerald-400 border border-emerald-500/10">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z">
+                                                    </path>
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">
+                                                    Số dư ví</p>
+                                                <p class="text-2xl font-bold text-white tracking-tight mt-0.5"
+                                                    id="edit_balance_display">0 ₫</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex gap-2 relative z-10">
+                                        <div class="relative flex-1">
+                                            <div
+                                                class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                                <span class="text-slate-500 font-medium">₫</span>
+                                            </div>
+                                            <input type="number" id="quick_balance_amount" placeholder="Nhập số tiền..."
+                                                class="w-full bg-slate-950 border border-slate-700/50 rounded-xl pl-8 pr-4 py-2.5 text-white text-sm focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition shadow-inner">
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-2 gap-3 mt-3 relative z-10">
+                                        <button type="button" onclick="updateBalance('add')"
+                                            class="py-2.5 px-4 bg-emerald-500/5 hover:bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl text-sm font-bold transition flex justify-center items-center gap-2 hover:shadow-lg hover:shadow-emerald-500/10 active:scale-95 duration-200">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                            </svg>
+                                            Nạp tiền
+                                        </button>
+                                        <button type="button" onclick="updateBalance('subtract')"
+                                            class="py-2.5 px-4 bg-rose-500/5 hover:bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded-xl text-sm font-bold transition flex justify-center items-center gap-2 hover:shadow-lg hover:shadow-rose-500/10 active:scale-95 duration-200">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M20 12H4"></path>
+                                            </svg>
+                                            Trừ tiền
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-slate-300 mb-1.5">Phone</label>
-                        <input type="text" name="phone" id="edit_phone"
-                            class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50">
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-slate-300 mb-1.5">Email</label>
-                        <input type="email" name="email" id="edit_email" required
-                            class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50">
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-slate-300 mb-1.5">Role</label>
-                        <select name="role" id="edit_role"
-                            class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50">
-                            <option value="admin">Admin</option>
-                            <option value="user">User</option>
-                        </select>
-                    </div>
-
-                    <div class="pt-2 flex justify-end gap-3">
+                    <!-- Footer -->
+                    <div
+                        class="px-6 py-4 bg-slate-900/30 border-t border-slate-700/50 flex justify-end gap-3 rounded-b-2xl backdrop-blur-md">
                         <button type="button" onclick="closeEditModal()"
-                            class="px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition">Cancel</button>
+                            class="px-5 py-2.5 rounded-xl text-sm font-semibold text-slate-400 hover:text-white hover:bg-white/5 transition duration-200">Hủy</button>
                         <button type="submit"
-                            class="px-4 py-2 rounded-lg text-sm font-medium bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/20 transition">Save
-                            Changes</button>
+                            class="px-6 py-2.5 rounded-xl text-sm font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 transition duration-200 flex items-center gap-2 transform hover:-translate-y-0.5">
+                            <span>Lưu thay đổi</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </button>
                     </div>
                 </form>
             </div>
@@ -306,25 +411,76 @@
     </div>
 </div>
 
+
+</div>
+</div>
+</div>
+</div>
+
+
+<!-- Manage Balance Modal -->
+
 <script src="/js/admin-core.js"></script>
 <script>
     // Shared Bulk Actions
     new TableManager({
         deleteUrl: '/users/delete-bulk',
-        confirmMessage: 'Are you sure you want to delete {count} users?'
+        confirmMessage: 'Bạn có chắc chắn muốn xóa {count} người dùng?'
     });
 
     const editModal = document.getElementById('editModalOverlay');
 
-    function openEditModal(id, fullName, email, phone, role) {
+    function openEditModal(id, fullName, email, phone, role, balance) {
         document.getElementById('edit_id').value = id;
         document.getElementById('edit_full_name').value = fullName;
         document.getElementById('edit_email').value = email;
         document.getElementById('edit_phone').value = phone;
         document.getElementById('edit_role').value = role;
 
+        // Reset Balance Adjustment
+        document.getElementById('edit_balance_adjustment').value = 0;
+
+        // Store initial balance for calculation
+        document.getElementById('edit_balance_display').setAttribute('data-initial', balance);
+        updateBalanceDisplay(parseFloat(balance));
+
+        document.getElementById('quick_balance_amount').value = '';
+
         editModal.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
+    }
+
+    function updateBalance(type) {
+        const inputAmount = document.getElementById('quick_balance_amount');
+        const modificationInput = document.getElementById('edit_balance_adjustment');
+        const display = document.getElementById('edit_balance_display');
+
+        const amount = parseFloat(inputAmount.value);
+        if (isNaN(amount) || amount <= 0) {
+            alert('Vui lòng nhập số tiền hợp lệ');
+            return;
+        }
+
+        let currentModification = parseFloat(modificationInput.value) || 0;
+        if (type === 'add') {
+            currentModification += amount;
+        } else {
+            currentModification -= amount;
+        }
+
+        modificationInput.value = currentModification;
+
+        // Update Display
+        const initialBalance = parseFloat(display.getAttribute('data-initial')) || 0;
+        const newTotal = initialBalance + currentModification;
+        updateBalanceDisplay(newTotal);
+
+        // Clear input for next entry
+        inputAmount.value = '';
+    }
+
+    function updateBalanceDisplay(amount) {
+        document.getElementById('edit_balance_display').innerText = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
     }
 
     function closeEditModal() {
