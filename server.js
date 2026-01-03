@@ -35,60 +35,6 @@ sequelize.sync().then(() => {
 });
 
 
-// API: Check or Create License
-app.get('/license/:key', async (req, res) => {
-    try {
-        const { key } = req.params;
-
-        let license = await License.findOne({ where: { key } });
-
-        if (!license) {
-            license = await License.create({
-                key,
-                client_name: '',
-                status: 'inactive',
-                expiry_date: null
-            });
-            console.log(`Created new inactive license: ${key}`);
-        } else {
-            // Auto Update Status based on Expiry Date
-            if (license.expiry_date) {
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                const expiry = new Date(license.expiry_date);
-
-                let newStatus = license.status;
-                if (expiry < today) {
-                    newStatus = 'inactive';
-                } else {
-                    // Logic: If date >= today, force active.
-                    // Note: This overrides 'trial' if the date is valid.
-                    newStatus = 'active';
-                }
-
-                if (newStatus !== license.status) {
-                    await license.update({ status: newStatus });
-                    license.status = newStatus; // Update local object for response
-                    console.log(`Auto-updated license ${key} status to ${newStatus}`);
-                }
-            }
-        }
-
-        res.json({
-            success: true,
-            data: {
-                client_name: license.client_name,
-                key: license.key,
-                status: license.status,
-                expiry_date: license.expiry_date
-            }
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ success: false, message: 'Server Error' });
-    }
-});
-
 // API: Verify License with HWID Binding
 app.post('/api/verify', async (req, res) => {
     try {
@@ -281,23 +227,6 @@ app.get('/', authMiddleware, async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).send('Database Error');
-    }
-});
-
-// Create Manual Route
-app.post('/create', authMiddleware, async (req, res) => {
-    try {
-        const { client_name, expiry_date } = req.body;
-        await License.create({
-            key: uid(16).toUpperCase().match(/.{1,4}/g).join('-'),
-            client_name,
-            status: 'active',
-            expiry_date
-        });
-        res.redirect('/');
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Error creating license');
     }
 });
 
