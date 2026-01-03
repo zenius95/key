@@ -1,0 +1,427 @@
+<div class="max-w-7xl mx-auto">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <!-- Left Column: Options -->
+        <div class="lg:col-span-8 space-y-8">
+
+            <!-- Product Selection -->
+            <div>
+                <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                    <span
+                        class="bg-indigo-600 w-8 h-8 rounded-lg flex items-center justify-center text-sm shadow-lg shadow-indigo-500/20">1</span>
+                    Chọn sản phẩm
+                </h3>
+                <% if (products.length===0) { %>
+                    <div class="p-4 bg-slate-900 border border-slate-800 rounded-xl text-slate-400">
+                        Chưa có sản phẩm nào đang hoạt động.
+                    </div>
+                    <% } else { %>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <% products.forEach((product, index)=> { %>
+                                <div onclick="selectProduct(<%= product.id %>)" id="prod-<%= product.id %>"
+                                    class="product-card group relative p-5 bg-slate-900 border border-slate-800 rounded-2xl cursor-pointer transition-all duration-200 hover:border-indigo-500/50 hover:shadow-lg hover:shadow-indigo-500/10 <%= index === 0 ? 'border-indigo-500 ring-1 ring-indigo-500 bg-indigo-500/5' : '' %>">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex items-center gap-3">
+                                            <div
+                                                class="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center group-hover:bg-indigo-500/20 transition">
+                                                <i
+                                                    class="ri-box-3-fill text-xl text-slate-400 group-hover:text-indigo-400 transition"></i>
+                                            </div>
+                                            <div>
+                                                <h4 class="font-bold text-white text-lg">
+                                                    <%= product.name %>
+                                                </h4>
+                                                <p class="text-xs text-slate-400">
+                                                    <%= product.packages ? product.packages.length : 0 %> gói dịch vụ
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div
+                                            class="check-icon opacity-0 scale-50 transition-all duration-200 <%= index === 0 ? 'opacity-100 scale-100' : '' %>">
+                                            <i class="ri-checkbox-circle-fill text-2xl text-indigo-500"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <% }); %>
+                        </div>
+                        <% } %>
+            </div>
+
+            <!-- Duration Selection -->
+            <div id="duration-section" class="<%= products.length === 0 ? 'hidden' : '' %>">
+                <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                    <span
+                        class="bg-indigo-600 w-8 h-8 rounded-lg flex items-center justify-center text-sm shadow-lg shadow-indigo-500/20">2</span>
+                    Thời hạn sử dụng
+                </h3>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4" id="duration-buttons">
+                    <!-- Injected via JS -->
+                </div>
+            </div>
+
+            <!-- Package Selection (Dynamic) -->
+            <div id="package-section" class="<%= products.length === 0 ? 'hidden' : '' %>">
+                <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                    <span
+                        class="bg-indigo-600 w-8 h-8 rounded-lg flex items-center justify-center text-sm shadow-lg shadow-indigo-500/20">3</span>
+                    Chọn gói dịch vụ
+                </h3>
+
+                <div
+                    class="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 flex items-center gap-3 text-amber-400 mb-6">
+                    <i class="ri-information-fill text-xl"></i>
+                    <span class="text-sm font-medium">Giá hiển thị được tính theo tháng (Đã áp dụng giảm giá thời
+                        hạn).</span>
+                </div>
+
+                <div id="packages-container" class="space-y-4">
+                    <!-- Packages will be injected here via JS -->
+                </div>
+                <div id="no-packages-msg"
+                    class="hidden p-8 text-center bg-slate-900 border border-slate-800 rounded-xl text-slate-500">
+                    Sản phẩm này chưa có gói dịch vụ nào.
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Summary (Sticky) -->
+        <div class="lg:col-span-4">
+            <div class="sticky top-6">
+                <h3 class="text-xl font-bold text-white mb-4">Thanh toán</h3>
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-5">
+
+                    <!-- Product Info -->
+                    <div class="flex items-center gap-3 pb-5 border-b border-slate-800">
+                        <div
+                            class="w-12 h-12 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400">
+                            <i class="ri-box-3-fill text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-500 font-medium uppercase tracking-wider">Sản phẩm</p>
+                            <p class="text-white font-bold" id="summary-product-name">--</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-400">Gói dịch vụ</span>
+                            <span class="font-medium text-white" id="summary-pkg-name">--</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-400">Phiên hoạt động</span>
+                            <span class="font-medium text-white" id="summary-pkg-uids">--</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-400">Đơn giá / tháng</span>
+                            <span class="font-mono font-medium text-white" id="summary-base-price">0đ</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-400">Thời hạn</span>
+                            <span class="font-medium text-white" id="summary-duration">1 tháng</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-400">Hết hạn ngày</span>
+                            <span class="font-medium text-white" id="summary-expiry">--</span>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-slate-800 border-dashed"></div>
+
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-400">Tạm tính</span>
+                            <span class="font-mono font-medium text-white" id="summary-subtotal">0đ</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-400">Giảm giá (<span id="summary-discount-percent">0</span>%)</span>
+                            <span class="font-mono font-bold text-rose-500" id="summary-discount">0đ</span>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-slate-800"></div>
+
+                    <div class="flex justify-between items-end">
+                        <span class="font-bold text-slate-200">Tổng thanh toán</span>
+                        <div class="text-right">
+                            <span class="block text-2xl font-bold text-indigo-400 font-mono"
+                                id="summary-total">0đ</span>
+                            <span class="text-[10px] text-slate-500">Đã bao gồm VAT</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs text-slate-400 font-medium uppercase">Số dư ví</span>
+                        <span class="font-mono font-bold text-emerald-400">
+                            <%= new Intl.NumberFormat('vi-VN', { style: 'currency' , currency: 'VND'
+                                }).format(user.balance) %>
+                        </span>
+                    </div>
+                    <div id="balance-warning" class="hidden flex items-center gap-2 text-rose-400 text-xs">
+                        <i class="ri-error-warning-fill"></i>
+                        <span>Số dư không đủ thanh toán</span>
+                    </div>
+                </div>
+
+                <button onclick="submitOrder()" id="btn-submit"
+                    class="w-full mt-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-indigo-500/20 transition transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                    Thanh toán ngay
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Data passed from backend
+    const products = <% - JSON.stringify(products) %>;
+    const userBalance = <%= user.balance || 0 %>;
+
+    // State
+    let selectedProductId = null;
+    let selectedPackageId = null;
+    let selectedPrice = 0; // Base monthly price
+    let selectedMaxUids = 1;
+    let selectedDuration = 1;
+
+    // Derived from Product
+    let productDiscounts = { month3: 0, month6: 0, year1: 0 };
+
+    // Initialize
+    if (products.length > 0) {
+        selectProduct(products[0].id);
+    } else {
+        updateSummary();
+    }
+
+    function selectProduct(id) {
+        selectedProductId = id;
+        const product = products.find(p => p.id === id);
+
+        // Parse discounts
+        if (product.discount_config) {
+            if (typeof product.discount_config === 'string') {
+                productDiscounts = JSON.parse(product.discount_config);
+            } else {
+                productDiscounts = product.discount_config;
+            }
+        } else {
+            productDiscounts = { month3: 0, month6: 0, year1: 0 };
+        }
+
+        renderDurationButtons();
+
+        // Update UI: Product Cards
+        document.querySelectorAll('.product-card').forEach(el => {
+            el.classList.remove('border-indigo-500', 'ring-1', 'ring-indigo-500', 'bg-indigo-500/5');
+            el.querySelector('.check-icon').classList.remove('opacity-100', 'scale-100');
+        });
+        const activeCard = document.getElementById(`prod-${id}`);
+        if (activeCard) {
+            activeCard.classList.add('border-indigo-500', 'ring-1', 'ring-indigo-500', 'bg-indigo-500/5');
+            activeCard.querySelector('.check-icon').classList.add('opacity-100', 'scale-100');
+        }
+
+        // Render Packages
+        const container = document.getElementById('packages-container');
+        const noPkgMsg = document.getElementById('no-packages-msg');
+        container.innerHTML = '';
+
+        if (!product.packages || product.packages.length === 0) {
+            noPkgMsg.classList.remove('hidden');
+            selectedPackageId = null;
+        } else {
+            noPkgMsg.classList.add('hidden');
+
+            // Sort packages by price
+            const sortedPackages = product.packages.sort((a, b) => parseFloat(a.original_price) - parseFloat(b.original_price));
+
+            sortedPackages.forEach((pkg, index) => {
+                const el = document.createElement('div');
+                el.id = `pkg-${pkg.id}`;
+                el.className = `package-card bg-slate-900 rounded-xl p-6 cursor-pointer border-2 transition-all duration-200 hover:border-indigo-500/30 group ${index === 0 ? 'border-indigo-600 bg-indigo-600/5' : 'border-slate-800'}`;
+                el.onclick = () => selectPackage(pkg.id);
+
+                const uids = pkg.max_uids === 0 ? 'Không giới hạn' : pkg.max_uids + ' UIDs';
+
+                el.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-4">
+                            <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center transition ${index === 0 ? 'border-indigo-500' : 'border-slate-600 group-hover:border-indigo-500'}">
+                                <div class="w-2.5 h-2.5 rounded-full bg-indigo-500 transition ${index === 0 ? 'opacity-100' : 'opacity-0'} dot-indicator"></div>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-bold text-white">${pkg.name}</h4>
+                                <p class="text-slate-400 text-sm">${uids}</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xl font-bold text-white font-mono">${new Intl.NumberFormat('vi-VN').format(pkg.original_price)}đ</p>
+                            <p class="text-xs text-slate-500">/ tháng</p>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(el);
+            });
+
+            // Auto select first package
+            if (sortedPackages.length > 0) {
+                selectPackage(sortedPackages[0].id);
+            }
+        }
+
+        document.getElementById('summary-product-name').innerText = product.name;
+    }
+
+    function renderDurationButtons() {
+        const container = document.getElementById('duration-buttons');
+        // Define buttons config
+        const buttons = [
+            { label: '1 Tháng', val: 1, discount: 0 },
+            { label: '3 Tháng', val: 3, discount: productDiscounts.month3 || 0 },
+            { label: '6 Tháng', val: 6, discount: productDiscounts.month6 || 0 },
+            { label: '1 Năm', val: 12, discount: productDiscounts.year1 || 0 }
+        ];
+
+        container.innerHTML = buttons.map(btn => `
+            <button onclick="selectDuration(${btn.val})" id="dur-${btn.val}" 
+                class="duration-btn bg-slate-900 text-slate-300 font-bold py-4 rounded-xl border border-slate-800 hover:bg-slate-800 hover:text-white transition relative overflow-hidden group">
+                ${btn.label}
+                ${btn.discount > 0 ? `<span class="absolute top-0 right-0 bg-emerald-500/10 text-emerald-400 border-l border-b border-emerald-500/20 text-[10px] px-2 py-0.5 rounded-bl-xl font-medium">-${btn.discount}%</span>` : ''}
+            </button>
+        `).join('');
+
+        selectDuration(selectedDuration); // Re-select to apply styles and new discounts
+    }
+
+    function selectPackage(id) {
+        selectedPackageId = id;
+        const product = products.find(p => p.id === selectedProductId);
+        const pkg = product.packages.find(p => p.id === id);
+        selectedPrice = parseFloat(pkg.original_price);
+        selectedMaxUids = pkg.max_uids;
+
+        // Update UI
+        document.querySelectorAll('.package-card').forEach(el => {
+            el.classList.remove('border-indigo-600', 'bg-indigo-600/5');
+            el.classList.add('border-slate-800');
+            el.querySelector('.dot-indicator').classList.add('opacity-0');
+            el.querySelector('.w-5').classList.remove('border-indigo-500');
+            el.querySelector('.w-5').classList.add('border-slate-600');
+        });
+        const activeEl = document.getElementById(`pkg-${id}`);
+        if (activeEl) {
+            activeEl.classList.remove('border-slate-800');
+            activeEl.classList.add('border-indigo-600', 'bg-indigo-600/5');
+            activeEl.querySelector('.dot-indicator').classList.remove('opacity-0');
+            activeEl.querySelector('.w-5').classList.remove('border-slate-600');
+            activeEl.querySelector('.w-5').classList.add('border-indigo-500');
+        }
+
+        document.getElementById('summary-pkg-name').innerText = pkg.name;
+        document.getElementById('summary-pkg-uids').innerText = pkg.max_uids === 0 ? 'Không giới hạn' : pkg.max_uids;
+
+        updateSummary();
+    }
+
+    function selectDuration(months) {
+        selectedDuration = months;
+
+        // Update UI Buttons
+        document.querySelectorAll('.duration-btn').forEach(btn => {
+            btn.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-600');
+            btn.classList.add('bg-slate-900', 'text-slate-300', 'border-slate-800');
+        });
+        const activeBtn = document.getElementById(`dur-${months}`);
+        if (activeBtn) {
+            activeBtn.classList.remove('bg-slate-900', 'text-slate-300', 'border-slate-800');
+            activeBtn.classList.add('bg-indigo-600', 'text-white', 'border-indigo-600');
+        }
+
+        updateSummary();
+    }
+
+    function updateSummary() {
+        if (!selectedPackageId) {
+            // Reset summary
+            document.getElementById('summary-total').innerText = '0đ';
+            return;
+        }
+
+        const formatter = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' });
+
+        // Find discount percent for current duration
+        let discountPercent = 0;
+        if (selectedDuration === 3) discountPercent = productDiscounts.month3 || 0;
+        if (selectedDuration === 6) discountPercent = productDiscounts.month6 || 0;
+        if (selectedDuration === 12) discountPercent = productDiscounts.year1 || 0;
+
+        const subTotal = selectedPrice * selectedDuration;
+        const discountAmount = Math.round((subTotal * discountPercent) / 100);
+        const total = subTotal - discountAmount;
+
+        document.getElementById('summary-base-price').innerText = formatter.format(selectedPrice);
+        document.getElementById('summary-duration').innerText = selectedDuration + (selectedDuration === 12 ? ' năm' : ' tháng');
+
+        const date = new Date();
+        date.setDate(date.getDate() + (selectedDuration * 30));
+        document.getElementById('summary-expiry').innerText = date.toLocaleDateString('vi-VN');
+
+        document.getElementById('summary-subtotal').innerText = formatter.format(subTotal);
+        document.getElementById('summary-discount-percent').innerText = discountPercent;
+        document.getElementById('summary-discount').innerText = '-' + formatter.format(discountAmount);
+        document.getElementById('summary-total').innerText = formatter.format(total);
+
+        // Check Balance
+        const btn = document.getElementById('btn-submit');
+        const warning = document.getElementById('balance-warning');
+
+        if (total > userBalance) {
+            btn.disabled = true;
+            btn.classList.add('bg-slate-700', 'shadow-none');
+            btn.classList.remove('bg-indigo-600', 'hover:bg-indigo-500');
+            warning.classList.remove('hidden');
+        } else {
+            btn.disabled = false;
+            btn.classList.remove('bg-slate-700', 'shadow-none');
+            btn.classList.add('bg-indigo-600', 'hover:bg-indigo-500');
+            warning.classList.add('hidden');
+        }
+    }
+
+    async function submitOrder() {
+        if (!selectedPackageId) return alert('Vui lòng chọn gói dịch vụ.');
+
+        if (!confirm('Xác nhận thanh toán gói dịch vụ này?')) return;
+
+        const btn = document.getElementById('btn-submit');
+        const originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="ri-loader-4-line animate-spin text-xl"></i>';
+
+        try {
+            const response = await fetch('/buy', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    package_id: selectedPackageId,
+                    duration_months: selectedDuration
+                })
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                window.location.href = data.redirect || '/history?tab=orders';
+            } else {
+                alert(data.message);
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        } catch (e) {
+            console.error(e);
+            alert('Có lỗi xảy ra.');
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+    }
+</script>

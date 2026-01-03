@@ -17,7 +17,7 @@ const listProducts = async (req, res) => {
 const saveProduct = async (req, res) => {
     const t = await db.sequelize.transaction();
     try {
-        const { id, name, description, status, packages } = req.body;
+        const { id, name, description, status, discount_config, packages } = req.body;
 
         let product;
         let action = '';
@@ -25,11 +25,11 @@ const saveProduct = async (req, res) => {
             // Update existing Product
             product = await db.Product.findByPk(id, { transaction: t });
             if (!product) throw new Error('Product not found');
-            await product.update({ name, description, status }, { transaction: t });
+            await product.update({ name, description, status, discount_config }, { transaction: t });
             action = 'UPDATE_PRODUCT';
         } else {
             // Create new Product
-            product = await db.Product.create({ name, description, status }, { transaction: t });
+            product = await db.Product.create({ name, description, status, discount_config }, { transaction: t });
             action = 'CREATE_PRODUCT';
         }
 
@@ -58,13 +58,15 @@ const saveProduct = async (req, res) => {
 
         // Upsert incoming packages
         for (const pkg of incomingPackages) {
+            const original_price = parseFloat(pkg.original_price || pkg.price);
+            const max_uids = parseInt(pkg.max_uids) || 1;
+
             if (pkg.id) {
                 // Update
                 await db.Package.update({
                     name: pkg.name,
-                    duration: parseInt(pkg.duration),
-                    original_price: parseFloat(pkg.price),
-                    discount_percent: parseInt(pkg.discount) || 0
+                    max_uids: max_uids,
+                    original_price: original_price
                 }, {
                     where: { id: pkg.id },
                     transaction: t
@@ -74,9 +76,8 @@ const saveProduct = async (req, res) => {
                 // Ensure product_id is set for new packages
                 await db.Package.create({
                     name: pkg.name,
-                    duration: parseInt(pkg.duration),
-                    original_price: parseFloat(pkg.price),
-                    discount_percent: parseInt(pkg.discount) || 0,
+                    max_uids: max_uids,
+                    original_price: original_price,
                     product_id: product.id
                 }, { transaction: t });
             }

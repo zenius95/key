@@ -5,11 +5,8 @@
     <!-- Search Input -->
     <div class="relative w-full sm:flex-1">
         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <svg class="h-4 w-4 text-slate-500 transition duration-200 group-focus-within:text-indigo-400" fill="none"
-                stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-            </svg>
+            <i
+                class="ri-search-line text-slate-500 text-lg group-focus-within:text-indigo-400 transition duration-200"></i>
         </div>
         <input type="text" id="searchInput" placeholder="Tìm kiếm mã giao dịch..."
             value="<%= typeof search !== 'undefined' ? search : '' %>"
@@ -22,10 +19,7 @@
         <!-- User Filter Input -->
         <div class="relative w-full sm:w-64">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg class="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
+                <i class="ri-user-search-line text-slate-500"></i>
             </div>
             <input type="text" id="userFilterInput" placeholder="Tên user/email..."
                 value="<%= typeof userSearch !== 'undefined' ? userSearch : '' %>"
@@ -37,11 +31,7 @@
         <div
             class="flex items-center gap-2 bg-slate-800/50 rounded-xl px-2 border border-slate-700/50 focus-within:ring-2 focus-within:ring-indigo-500/50 focus-within:border-indigo-500/50 transition w-full sm:w-auto hover:bg-slate-800">
             <div class="pointer-events-none flex items-center pl-2">
-                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
-                    </path>
-                </svg>
+                <i class="ri-shield-user-line text-slate-400"></i>
             </div>
             <select id="typeFilter" onchange="applyFilters()"
                 class="bg-transparent border-none text-slate-300 text-sm focus:outline-none focus:ring-0 p-2.5 w-full sm:w-auto cursor-pointer font-medium outline-none">
@@ -58,11 +48,7 @@
         <div
             class="flex items-center gap-2 bg-slate-800/50 rounded-xl px-2 border border-slate-700/50 focus-within:ring-2 focus-within:ring-indigo-500/50 focus-within:border-indigo-500/50 transition w-full sm:w-auto hover:bg-slate-800">
             <div class="pointer-events-none flex items-center pl-2">
-                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z">
-                    </path>
-                </svg>
+                <i class="ri-cursor-line text-slate-400"></i>
             </div>
             <select id="actionFilter" onchange="applyFilters()"
                 class="bg-transparent border-none text-slate-300 text-sm focus:outline-none focus:ring-0 p-2.5 w-full sm:w-auto cursor-pointer font-medium outline-none">
@@ -82,10 +68,7 @@
     <!-- Submit Button (Search) -->
     <button onclick="applyFilters()"
         class="bg-indigo-600 hover:bg-indigo-500 text-white p-2.5 rounded-xl transition shadow-lg shadow-indigo-500/20 flex items-center justify-center">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-        </svg>
+        <i class="ri-search-line text-lg"></i>
     </button>
 </div>
 

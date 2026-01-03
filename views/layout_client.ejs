@@ -11,6 +11,7 @@
         href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@100;300;400;500;700;900&family=Inter:wght@100;300;400;500;700;900&display=swap"
         rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet" />
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -29,14 +30,12 @@
     <!-- Sidebar -->
     <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col fixed inset-y-0 z-50">
         <!-- Logo -->
+        <!-- Logo -->
         <div class="h-16 flex items-center px-6 border-b border-slate-800">
             <div class="flex items-center gap-3">
                 <div
                     class="bg-indigo-600 w-8 h-8 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/30">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                    </svg>
+                    <i class="ri-flashlight-fill text-white text-lg"></i>
                 </div>
                 <span class="text-lg font-bold text-white tracking-tight">Client Portal</span>
             </div>
@@ -44,28 +43,32 @@
 
         <!-- Menu -->
         <nav class="flex-1 px-4 py-6 space-y-1">
-            <a href="/client"
+            <a href="/"
                 class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 <%= (typeof activeTab !== 'undefined' && activeTab === 'dashboard') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' %>">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z">
-                    </path>
-                </svg>
+                <i class="ri-dashboard-3-line text-lg"></i>
                 Tổng quan
             </a>
 
-
-
             <!-- Future: Buy Package -->
-            <!-- <a href="/client/buy" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white transition-all duration-200">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                </svg>
-                Mua gói dịch vụ
-            </a> -->
+            <a href="/deposit"
+                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 <%= (typeof activeTab !== 'undefined' && activeTab === 'deposit') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' %>">
+                <i class="ri-wallet-3-line text-lg"></i>
+                Nạp tiền
+            </a>
+
+            <a href="/buy"
+                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 <%= (typeof activeTab !== 'undefined' && activeTab === 'buy') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' %>">
+                <i class="ri-shopping-cart-2-line text-lg"></i>
+                Mua gói
+            </a>
+
+            <a href="/history"
+                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 <%= (typeof activeTab !== 'undefined' && activeTab === 'history') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' %>">
+                <i class="ri-history-line text-lg"></i>
+                Lịch sử giao dịch
+            </a>
         </nav>
 
-        <!-- User Info Bottom -->
         <!-- User Info Bottom -->
         <div class="p-4 border-t border-slate-800 relative">
             <!-- Dropdown Menu -->
@@ -73,20 +76,13 @@
                 class="hidden absolute bottom-full left-4 right-4 mb-2 bg-slate-800 border border-slate-700 rounded-xl shadow-xl overflow-hidden transition-all duration-200 origin-bottom transform scale-95 opacity-0">
                 <a href="/profile"
                     class="flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-700 hover:text-white transition">
-                    <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                    </svg>
+                    <i class="ri-user-settings-line text-indigo-400 text-lg"></i>
                     Thông tin cá nhân
                 </a>
                 <div class="h-px bg-slate-700 mx-2"></div>
                 <a href="/logout"
                     class="flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-rose-900/20 hover:text-rose-400 transition">
-                    <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
-                        </path>
-                    </svg>
+                    <i class="ri-logout-box-r-line text-rose-400 text-lg"></i>
                     Đăng xuất
                 </a>
             </div>
@@ -104,22 +100,15 @@
                     </p>
                     <div
                         class="inline-flex items-center px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
-                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
-                            </path>
-                        </svg>
+                        <i class="ri-money-dollar-circle-line mr-1"></i>
                         <span class="text-[10px] font-bold font-mono">
                             <%= new Intl.NumberFormat('vi-VN', { style: 'currency' , currency: 'VND'
                                 }).format(user.balance) %>
                         </span>
                     </div>
                 </div>
-                <svg id="dropdownArrow"
-                    class="w-4 h-4 text-slate-500 group-hover:text-white transition transform duration-200" fill="none"
-                    stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
+                <i id="dropdownArrow"
+                    class="ri-arrow-down-s-line text-slate-500 group-hover:text-white transition transform duration-200 text-lg"></i>
             </button>
         </div>
 

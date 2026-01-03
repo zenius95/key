@@ -1,14 +1,9 @@
 <!-- Toolbar -->
 <div
     class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4 bg-slate-900/50 p-1.5 rounded-2xl border border-slate-800/50 backdrop-blur-sm shadow-sm">
-    <!-- Search (Client-side simple filter for now or placeholder) -->
     <div class="relative w-full sm:flex-1">
         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <svg class="h-4 w-4 text-slate-500 transition duration-200 group-focus-within:text-indigo-400" fill="none"
-                stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-            </svg>
+            <i class="ri-search-line text-slate-500 text-lg"></i>
         </div>
         <input type="text" id="productSearch" placeholder="Tìm kiếm sản phẩm..."
             class="bg-transparent border-none text-slate-200 text-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 block w-full pl-10 p-2.5 placeholder-slate-500 transition duration-200">
@@ -18,10 +13,7 @@
         <% if (user.role==='admin' ) { %>
             <button onclick="openModal()"
                 class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2.5 rounded-xl transition shadow-lg shadow-indigo-500/20 text-sm font-medium whitespace-nowrap flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4">
-                    </path>
-                </svg>
+                <i class="ri-add-line"></i>
                 Thêm sản phẩm
             </button>
             <% } %>
@@ -72,21 +64,13 @@
                                         class="p-1.5 rounded-lg text-slate-400 hover:text-indigo-400 hover:bg-slate-800
                                         transition"
                                         title="Edit">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z">
-                                            </path>
-                                        </svg>
+                                        <i class="ri-edit-line"></i>
                                     </button>
                                     <a href="/products/delete/<%= p.id %>"
                                         onclick="return confirm('Xóa sản phẩm này và tất cả các gói liên quan?')"
                                         class="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition"
                                         title="Delete">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                                            </path>
-                                        </svg>
+                                        <i class="ri-delete-bin-line"></i>
                                     </a>
                                 </div>
                             </td>
@@ -106,11 +90,9 @@
 </div>
 
 <script>
-    // Simple Client-side Search for Products
     document.getElementById('productSearch').addEventListener('keyup', function (e) {
         const term = e.target.value.toLowerCase();
         const rows = document.querySelectorAll('.product-row');
-
         rows.forEach(row => {
             const text = row.innerText.toLowerCase();
             row.style.display = text.includes(term) ? '' : 'none';
@@ -119,23 +101,18 @@
 </script>
 
 <% if (user.role==='admin' ) { %>
-    <!-- Unified Product Modal -->
+    <!-- Product Modal -->
     <div id="productModal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog"
         aria-modal="true">
-        <div class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm transition-opacity" onclick="closeModal()">
-        </div>
+        <div class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm transition-opacity" onclick="closeModal()"></div>
         <div class="fixed inset-0 z-10 overflow-y-auto">
             <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
                 <div
                     class="relative transform overflow-hidden rounded-xl bg-slate-900 border border-slate-800 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-4xl">
-
                     <div class="px-6 py-5 border-b border-slate-800 flex justify-between items-center">
                         <h3 class="text-lg font-bold text-white" id="modalTitle">Thêm sản phẩm</h3>
                         <button type="button" onclick="closeModal()" class="text-slate-400 hover:text-white transition">
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
+                            <i class="ri-close-line text-xl"></i>
                         </button>
                     </div>
 
@@ -166,17 +143,37 @@
                             </div>
                         </div>
 
+                        <!-- Discount Config -->
+                        <div class="bg-slate-950/50 rounded-xl p-4 border border-slate-800">
+                            <h4 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-4">Cấu hình giảm giá
+                                (%)</h4>
+                            <div class="grid grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-400 mb-1">3 Tháng</label>
+                                    <input type="number" id="discount_3m" value="5" min="0" max="100"
+                                        class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-white text-sm text-center">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-400 mb-1">6 Tháng</label>
+                                    <input type="number" id="discount_6m" value="8" min="0" max="100"
+                                        class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-white text-sm text-center">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-400 mb-1">1 Năm</label>
+                                    <input type="number" id="discount_1y" value="15" min="0" max="100"
+                                        class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-white text-sm text-center">
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Packages Section -->
                         <div class="bg-slate-950/50 rounded-xl p-4 border border-slate-800">
                             <div class="flex justify-between items-center mb-4">
-                                <h4 class="text-sm font-bold text-slate-300 uppercase tracking-wider">Cấu hình gói</h4>
+                                <h4 class="text-sm font-bold text-slate-300 uppercase tracking-wider">Cấu hình gói dịch
+                                    vụ</h4>
                                 <button type="button" onclick="addPackageRow()"
                                     class="text-xs bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 px-3 py-1.5 rounded-lg border border-indigo-500/20 transition flex items-center gap-1 font-medium">
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 4v16m8-8H4"></path>
-                                    </svg>
-                                    Add Package
+                                    <i class="ri-add-line"></i> Thêm gói
                                 </button>
                             </div>
 
@@ -185,15 +182,14 @@
                                     <thead
                                         class="text-xs text-slate-500 font-semibold uppercase bg-slate-900/50 border-b border-slate-800">
                                         <tr>
-                                            <th class="px-3 py-2 w-1/4">Tên</th>
-                                            <th class="px-3 py-2 w-1/6">Thời hạn (Ngày)</th>
-                                            <th class="px-3 py-2 w-1/6">Giá (VND)</th>
-                                            <th class="px-3 py-2 w-1/6">Giảm giá (%)</th>
+                                            <th class="px-3 py-2 w-1/3">Tên gói</th>
+                                            <th class="px-3 py-2 w-1/4">Số lượng UID (0 = Vô hạn)</th>
+                                            <th class="px-3 py-2 w-1/4">Giá / Tháng (VND)</th>
                                             <th class="px-3 py-2 w-10"></th>
                                         </tr>
                                     </thead>
                                     <tbody id="packagesList" class="divide-y divide-slate-800">
-                                        <!-- Rows injected via JS -->
+                                        <!-- JS injected -->
                                     </tbody>
                                 </table>
                             </div>
@@ -230,27 +226,37 @@
             const modal = document.getElementById('productModal');
             const title = document.getElementById('modalTitle');
 
-            // Reset Form
             document.getElementById('p_id').value = '';
             document.getElementById('p_name').value = '';
             document.getElementById('p_desc').value = '';
             document.getElementById('p_status').value = 'active';
+
+            // Reset discounts
+            document.getElementById('discount_3m').value = 5;
+            document.getElementById('discount_6m').value = 8;
+            document.getElementById('discount_1y').value = 15;
+
             currentPackages = [];
 
             if (product) {
-                // Edit Mode
                 title.innerText = 'Sửa sản phẩm: ' + product.name;
                 document.getElementById('p_id').value = product.id;
                 document.getElementById('p_name').value = product.name;
                 document.getElementById('p_desc').value = product.description || '';
-                document.getElementById('p_status').value = product.status || 'active'; // Assuming status exists
+                document.getElementById('p_status').value = product.status || 'active';
+
+                if (product.discount_config) {
+                    const cfg = typeof product.discount_config === 'string' ? JSON.parse(product.discount_config) : product.discount_config;
+                    document.getElementById('discount_3m').value = cfg.month3 || 0;
+                    document.getElementById('discount_6m').value = cfg.month6 || 0;
+                    document.getElementById('discount_1y').value = cfg.year1 || 0;
+                }
 
                 if (product.packages) {
                     currentPackages = JSON.parse(JSON.stringify(product.packages));
                 }
             } else {
-                // Add Mode
-                title.innerText = 'Add New Product';
+                title.innerText = 'Thêm sản phẩm mới';
             }
 
             renderPackages();
@@ -275,20 +281,17 @@
                     row.className = 'group hover:bg-slate-900/50';
                     row.innerHTML = `
                         <td class="px-3 py-2">
-                            <input type="text" value="${pkg.name || ''}" onchange="updatePackage(${index}, 'name', this.value)" class="w-full bg-transparent border-b border-transparent focus:border-indigo-500 focus:outline-none text-white text-sm py-1 placeholder-slate-600" placeholder="Pkg Name" required>
+                            <input type="text" value="${pkg.name || ''}" onchange="updatePackage(${index}, 'name', this.value)" class="w-full bg-transparent border-b border-transparent focus:border-indigo-500 focus:outline-none text-white text-sm py-1 placeholder-slate-600" placeholder="Tên gói" required>
                         </td>
                         <td class="px-3 py-2">
-                            <input type="number" value="${pkg.duration || ''}" onchange="updatePackage(${index}, 'duration', this.value)" class="w-full bg-transparent border-b border-transparent focus:border-indigo-500 focus:outline-none text-white text-sm py-1 text-center" placeholder="30" required>
+                            <input type="number" value="${pkg.max_uids !== undefined ? pkg.max_uids : 1}" onchange="updatePackage(${index}, 'max_uids', this.value)" class="w-full bg-transparent border-b border-transparent focus:border-indigo-500 focus:outline-none text-white text-sm py-1 text-center" placeholder="1" min="0">
                         </td>
                         <td class="px-3 py-2">
-                            <input type="number" value="${pkg.original_price || ''}" onchange="updatePackage(${index}, 'price', this.value)" class="w-full bg-transparent border-b border-transparent focus:border-indigo-500 focus:outline-none text-white text-sm py-1 text-center" placeholder="0" required>
-                        </td>
-                        <td class="px-3 py-2">
-                            <input type="number" value="${pkg.discount_percent || 0}" onchange="updatePackage(${index}, 'discount', this.value)" class="w-full bg-transparent border-b border-transparent focus:border-indigo-500 focus:outline-none text-white text-sm py-1 text-center" placeholder="0" min="0" max="100">
+                            <input type="number" value="${pkg.original_price || ''}" onchange="updatePackage(${index}, 'original_price', this.value)" class="w-full bg-transparent border-b border-transparent focus:border-indigo-500 focus:outline-none text-white text-sm py-1 text-center" placeholder="0" required>
                         </td>
                         <td class="px-3 py-2 text-right">
                             <button type="button" onclick="removePackage(${index})" class="text-slate-600 hover:text-rose-500 transition p-1">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                <i class="ri-delete-bin-line"></i>
                             </button>
                         </td>
                     `;
@@ -298,15 +301,12 @@
         }
 
         function addPackageRow() {
-            currentPackages.push({ id: null, name: '', duration: 30, original_price: 0, discount_percent: 0 });
+            currentPackages.push({ id: null, name: '', max_uids: 1, original_price: 0 });
             renderPackages();
         }
 
         function updatePackage(index, field, value) {
             currentPackages[index][field] = value;
-            // Map legacy fields if new ones used
-            if (field === 'price') currentPackages[index].original_price = value;
-            if (field === 'discount') currentPackages[index].discount_percent = value;
         }
 
         function removePackage(index) {
@@ -319,12 +319,6 @@
             const btn = e.submitter;
             const spinner = document.getElementById('saveSpinner');
 
-            // Validation
-            if (currentPackages.some(p => !p.name || !p.duration)) {
-                alert('Please fill in all package details (Name and Duration are required).');
-                return;
-            }
-
             btn.disabled = true;
             spinner.classList.remove('hidden');
 
@@ -333,12 +327,16 @@
                 name: document.getElementById('p_name').value,
                 description: document.getElementById('p_desc').value,
                 status: document.getElementById('p_status').value,
+                discount_config: {
+                    month3: parseInt(document.getElementById('discount_3m').value) || 0,
+                    month6: parseInt(document.getElementById('discount_6m').value) || 0,
+                    year1: parseInt(document.getElementById('discount_1y').value) || 0
+                },
                 packages: currentPackages.map(p => ({
                     id: p.id,
                     name: p.name,
-                    duration: p.duration,
-                    price: p.original_price || p.price,
-                    discount: p.discount_percent || p.discount
+                    max_uids: parseInt(p.max_uids),
+                    original_price: parseFloat(p.original_price || p.price), // Handle potential legacy key
                 }))
             };
 

@@ -10,6 +10,10 @@ module.exports = (sequelize, DataTypes) => {
         status: {
             type: DataTypes.ENUM('active', 'inactive'),
             defaultValue: 'active'
+        },
+        discount_config: {
+            type: DataTypes.JSON,
+            defaultValue: { month3: 5, month6: 8, year1: 15 }
         }
     });
 

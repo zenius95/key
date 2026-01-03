@@ -12,5 +12,10 @@ const { requireAuth } = require('../middlewares/authMiddleware');
 router.get('/', requireAuth, ClientController.dashboard);
 router.get('/profile', requireAuth, ClientController.profile);
 router.post('/profile', requireAuth, ClientController.updateProfile);
+router.get('/deposit', requireAuth, ClientController.deposit);
+router.get('/history', requireAuth, ClientController.history);
+router.get('/buy', requireAuth, ClientController.buy);
+router.post('/buy', requireAuth, ClientController.processBuy);
+router.get('/balance', requireAuth, ClientController.getBalance);
 
 module.exports = router;
