@@ -25,9 +25,9 @@ const postLogin = async (req, res) => {
             return res.render('login', { error: 'Invalid email or password', layout: false });
         }
 
-        if (user.role !== 'admin') {
-            return res.render('login', { error: 'Access denied. Administrator access only.', layout: false });
-        }
+        // if (user.role !== 'admin') {
+        //     return res.render('login', { error: 'Access denied. Administrator access only.', layout: false });
+        // }
 
         req.session.userId = user.id;
         req.session.role = user.role;
@@ -40,6 +40,9 @@ const postLogin = async (req, res) => {
         // Log Login
         await logActivity(user.id, 'LOGIN', 0, null, req);
 
+        if (user.role === 'user') {
+            return res.redirect('/');
+        }
         res.redirect('/admin');
     } catch (error) {
         console.error(error);
