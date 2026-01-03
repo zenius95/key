@@ -301,6 +301,28 @@ app.post('/create', authMiddleware, async (req, res) => {
     }
 });
 
+// Bulk Delete Route
+app.post('/delete-bulk', authMiddleware, async (req, res) => {
+    try {
+        const { ids } = req.body;
+        if (!ids || !Array.isArray(ids) || ids.length === 0) {
+            return res.status(400).send('No IDs provided');
+        }
+
+        await License.destroy({
+            where: {
+                id: {
+                    [Op.in]: ids
+                }
+            }
+        });
+        res.json({ success: true, message: 'Deleted successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Error deleting licenses' });
+    }
+});
+
 // Delete Route
 app.get('/delete/:id', authMiddleware, async (req, res) => {
     try {

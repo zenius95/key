@@ -168,6 +168,17 @@
                             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
                 </button>
+
+                <!-- Bulk Delete Button (Hidden by default) -->
+                <button id="bulkDeleteBtn" onclick="deleteSelected()" style="display: none;"
+                    class="bg-rose-600 hover:bg-rose-500 text-white px-4 py-2.5 rounded-xl transition shadow-lg shadow-rose-500/20 flex items-center justify-center gap-2 text-sm font-medium">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                        </path>
+                    </svg>
+                    <span>Xóa (<span id="selectedCount">0</span>)</span>
+                </button>
             </div>
         </div>
 
@@ -178,7 +189,11 @@
                     <thead
                         class="bg-slate-850 text-xs uppercase text-slate-400 font-semibold border-b border-slate-800">
                         <tr>
-                            <th class="px-6 py-4 tracking-wider w-[30%]">Khách hàng</th>
+                            <th class="px-6 py-4 w-[5%]">
+                                <input type="checkbox" id="selectAll" onclick="toggleSelectAll()"
+                                    class="rounded bg-slate-800 border-slate-700 text-indigo-600 focus:ring-indigo-500 cursor-pointer w-4 h-4">
+                            </th>
+                            <th class="px-6 py-4 tracking-wider w-[25%]">Khách hàng</th>
                             <th class="px-6 py-4 tracking-wider w-[30%]">License Key</th>
                             <th class="px-6 py-4 tracking-wider w-[15%]">Trạng thái</th>
                             <th class="px-6 py-4 tracking-wider w-[15%]">Hết hạn</th>
@@ -186,8 +201,13 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-800 text-sm" id="licenseTableBody">
-                        <% licenses.forEach(function(license) { %>
+                        <% licenses.forEach(function(license, index) { %>
                             <tr class="hover:bg-slate-800/50 transition duration-150 license-row">
+                                <td class="px-6 py-4">
+                                    <input type="checkbox" value="<%= license.id %>"
+                                        onclick="handleRowSelect(this, event, <%= index %>)"
+                                        class="row-checkbox rounded bg-slate-800 border-slate-700 text-indigo-600 focus:ring-indigo-500 cursor-pointer w-4 h-4">
+                                </td>
                                 <td class="px-6 py-4 whitespace-nowrap client-name">
                                     <div class="flex items-center gap-3">
                                         <div
@@ -504,6 +524,85 @@
             }
 
             window.location.href = url.toString();
+        }
+
+        // Bulk Delete & Checkbox Logic
+        let lastCheckedIndex = null;
+        const checkboxes = document.querySelectorAll('.row-checkbox');
+
+        function updateBulkDeleteUI() {
+            const checkboxes = document.querySelectorAll('.row-checkbox');
+            const selectedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+            const btn = document.getElementById('bulkDeleteBtn');
+            const countSpan = document.getElementById('selectedCount');
+            const selectAll = document.getElementById('selectAll');
+
+            countSpan.innerText = selectedCount;
+            if (selectedCount > 0) {
+                btn.style.display = 'flex';
+            } else {
+                btn.style.display = 'none';
+            }
+
+            // Update Select All State
+            selectAll.checked = selectedCount === checkboxes.length && checkboxes.length > 0;
+            selectAll.indeterminate = selectedCount > 0 && selectedCount < checkboxes.length;
+        }
+
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('selectAll');
+            const checkboxes = document.querySelectorAll('.row-checkbox');
+            checkboxes.forEach(cb => cb.checked = selectAll.checked);
+            updateBulkDeleteUI();
+        }
+
+        function handleRowSelect(checkbox, event, index) {
+            const checkboxes = document.querySelectorAll('.row-checkbox');
+
+            // Handle Shift + Click
+            if (event.shiftKey && lastCheckedIndex !== null) {
+                const start = Math.min(lastCheckedIndex, index);
+                const end = Math.max(lastCheckedIndex, index);
+
+                for (let i = start; i <= end; i++) {
+                    checkboxes[i].checked = checkbox.checked;
+                }
+            }
+
+            lastCheckedIndex = index;
+            updateBulkDeleteUI();
+        }
+
+        async function deleteSelected() {
+            const checkboxes = document.querySelectorAll('.row-checkbox:checked');
+            const ids = Array.from(checkboxes).map(cb => cb.value);
+
+            if (ids.length === 0) return;
+
+            if (!confirm(`Bạn có chắc chắn muốn xóa ${ids.length} license đã chọn? Hành động này không thể hoàn tác.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/delete-bulk', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ ids })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    window.location.reload();
+                } else {
+                    alert('Lỗi: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Đã xảy ra lỗi khi xóa.');
+            }
         }
     </script>
 </body>
