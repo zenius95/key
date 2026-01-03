@@ -2,3 +2,5 @@
 /package-lock.json
 /database
 .env
+private_key.pem
+public_key.pem
