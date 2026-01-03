@@ -33,6 +33,27 @@
                 class="bg-transparent border-none text-slate-200 text-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 block w-full pl-10 p-2.5 placeholder-slate-500 transition duration-200">
         </div>
 
+        <!-- Role Filter -->
+        <div
+            class="flex items-center gap-2 bg-slate-800/50 rounded-xl px-2 border border-slate-700/50 focus-within:ring-2 focus-within:ring-indigo-500/50 focus-within:border-indigo-500/50 transition w-full sm:w-auto hover:bg-slate-800">
+            <div class="pointer-events-none flex items-center pl-2">
+                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
+                    </path>
+                </svg>
+            </div>
+            <select id="typeFilter" onchange="applyFilters()"
+                class="bg-transparent border-none text-slate-300 text-sm focus:outline-none focus:ring-0 p-2.5 w-full sm:w-auto cursor-pointer font-medium outline-none">
+                <option value="" class="bg-slate-950" <%=typeof type==='undefined' || type==='' ? 'selected' : '' %>>Tất
+                    cả tài khoản</option>
+                <option value="admin" class="bg-slate-950" <%=typeof type !=='undefined' && type==='admin' ? 'selected'
+                    : '' %>>ADMIN</option>
+                <option value="client" class="bg-slate-950" <%=typeof type !=='undefined' && type==='client'
+                    ? 'selected' : '' %>>CLIENT</option>
+            </select>
+        </div>
+
         <!-- Action Filter -->
         <div
             class="flex items-center gap-2 bg-slate-800/50 rounded-xl px-2 border border-slate-700/50 focus-within:ring-2 focus-within:ring-indigo-500/50 focus-within:border-indigo-500/50 transition w-full sm:w-auto hover:bg-slate-800">
@@ -47,16 +68,12 @@
                 class="bg-transparent border-none text-slate-300 text-sm focus:outline-none focus:ring-0 p-2.5 w-full sm:w-auto cursor-pointer font-medium outline-none">
                 <option value="all" class="bg-slate-950" <%=actionFilter==='all' ? 'selected' : '' %>>Tất cả hành động
                 </option>
-                <option value="LOGIN" class="bg-slate-950" <%=actionFilter==='LOGIN' ? 'selected' : '' %>>Đăng nhập
-                </option>
-                <option value="PURCHASE" class="bg-slate-950" <%=actionFilter==='PURCHASE' ? 'selected' : '' %>>Mua hàng
-                </option>
-                <option value="DEPOSIT" class="bg-slate-950" <%=actionFilter==='DEPOSIT' ? 'selected' : '' %>>Nạp tiền
-                </option>
-                <option value="BALANCE_UPDATE" class="bg-slate-950" <%=actionFilter==='BALANCE_UPDATE' ? 'selected' : ''
-                    %>>Điều chỉnh số dư</option>
-                <option value="USER_UPDATE" class="bg-slate-950" <%=actionFilter==='USER_UPDATE' ? 'selected' : '' %>
-                    >Cập nhật User</option>
+                <% Object.keys(activityActions).forEach(action=> { %>
+                    <option value="<%= action %>" class="bg-slate-950" <%=actionFilter===action ? 'selected' : '' %>
+                        >
+                        <%= activityActions[action] %>
+                    </option>
+                    <% }); %>
             </select>
         </div>
     </div>
@@ -124,7 +141,28 @@
                                 <%= activityActions[log.action] || log.action %>
                                     <% if (log.transactionId) { %>
                                         <div class="text-[10px] text-indigo-400 font-mono mt-1">
-                                            #<%= log.transactionId %>
+                                            <% if (['CREATE_ORDER', 'UPDATE_ORDER' , 'DELETE_ORDER' , 'UPGRADE_ORDER'
+                                                ].includes(log.action)) { %>
+                                                Đơn hàng #<%= log.transactionId %>
+                                                    <% } else if (['CREATE_PRODUCT', 'UPDATE_PRODUCT' , 'DELETE_PRODUCT'
+                                                        ].includes(log.action)) { %>
+                                                        Sản phẩm #<%= log.transactionId %>
+                                                            <% } else if (['DELETE_USER', 'USER_UPDATE'
+                                                                , 'BALANCE_UPDATE' ].includes(log.action)) { %>
+                                                                User ID: <%= log.transactionId %>
+                                                                    <% } else if (log.action==='BULK_DELETE_ORDER' ) {
+                                                                        %>
+                                                                        Đơn hàng: <%= log.transactionId %>
+                                                                            <% } else if
+                                                                                (log.action==='BULK_DELETE_USER' ) { %>
+                                                                                Users: <%= log.transactionId %>
+                                                                                    <% } else if (log.action==='DEPOSIT'
+                                                                                        ) { %>
+                                                                                        GD: <%= log.transactionId %>
+                                                                                            <% } else { %>
+                                                                                                #<%= log.transactionId
+                                                                                                    %>
+                                                                                                    <% } %>
                                         </div>
                                         <% } %>
                             </div>
@@ -176,14 +214,21 @@
         const actionFilter = document.getElementById('actionFilter').value;
         const userFilter = document.getElementById('userFilterInput').value;
         const searchInput = document.getElementById('searchInput').value;
+        const typeFilter = document.getElementById('typeFilter').value;
 
         const url = new URL(window.location.href);
         url.searchParams.set('page', 1);
 
-        if (actionFilter && actionFilter !== 'all') {
+        if (actionFilter !== 'all') {
             url.searchParams.set('action', actionFilter);
         } else {
             url.searchParams.delete('action');
+        }
+
+        if (typeFilter) {
+            url.searchParams.set('type', typeFilter);
+        } else {
+            url.searchParams.delete('type');
         }
 
         if (userFilter) {

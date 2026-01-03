@@ -115,7 +115,7 @@
                 <option value="" class="bg-slate-950" <%=productFilter==='' ? 'selected' : '' %>>All Products
                 </option>
                 <% allProducts.forEach(function(p) { %>
-                    <option value="<%= p.name %>" class="bg-slate-950" <%=productFilter===p.name ? 'selected' : '' %>>
+                    <option value="<%= p.id %>" class="bg-slate-950" <%=productFilter==p.id ? 'selected' : '' %>>
                         <%= p.name %>
                     </option>
                     <% }); %>
@@ -254,6 +254,18 @@
                                                     </path>
                                                 </svg>
                                             </button>
+                                            <a href="/orders/delete/<%= order.id %>"
+                                                onclick="return confirm('Bạn có chắc chắn muốn xóa đơn hàng #<%= order.id %>?')"
+                                                class="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition"
+                                                title="Delete">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                                    </path>
+                                                </svg>
+                                            </a>
                                         </div>
                                     </td>
                                     <% } %>
