@@ -1,0 +1,369 @@
+<!-- Toolbar -->
+<div
+    class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4 bg-slate-900/50 p-1.5 rounded-2xl border border-slate-800/50 backdrop-blur-sm shadow-sm">
+    <!-- Search (Client-side simple filter for now or placeholder) -->
+    <div class="relative w-full sm:flex-1">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-4 w-4 text-slate-500 transition duration-200 group-focus-within:text-indigo-400" fill="none"
+                stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+        </div>
+        <input type="text" id="productSearch" placeholder="Search products..."
+            class="bg-transparent border-none text-slate-200 text-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 block w-full pl-10 p-2.5 placeholder-slate-500 transition duration-200">
+    </div>
+
+    <div class="flex items-center gap-2 w-full sm:w-auto">
+        <% if (user.role==='admin' ) { %>
+            <button onclick="openModal()"
+                class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2.5 rounded-xl transition shadow-lg shadow-indigo-500/20 text-sm font-medium whitespace-nowrap flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4">
+                    </path>
+                </svg>
+                Add Product
+            </button>
+            <% } %>
+    </div>
+</div>
+
+<!-- Products Table -->
+<div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-sm flex flex-col">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead class="bg-slate-850 text-xs uppercase text-slate-400 font-semibold border-b border-slate-800">
+                <tr>
+                    <th class="px-6 py-4 tracking-wider">Product Name</th>
+                    <th class="px-6 py-4 tracking-wider">Description</th>
+                    <th class="px-6 py-4 text-center tracking-wider">Packages</th>
+                    <th class="px-6 py-4 tracking-wider">Status</th>
+                    <% if (user.role==='admin' ) { %>
+                        <th class="px-6 py-4 text-right tracking-wider">Actions</th>
+                        <% } %>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800 text-sm">
+                <% products.forEach(function(p) { %>
+                    <tr class="hover:bg-slate-800/50 transition duration-150 product-row">
+                        <td class="px-6 py-4 font-medium text-slate-200">
+                            <%= p.name %>
+                        </td>
+                        <td class="px-6 py-4 text-slate-400 max-w-xs truncate" title="<%= p.description %>">
+                            <%= p.description || '-' %>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <span
+                                class="bg-slate-800 text-indigo-400 px-2.5 py-0.5 rounded-full text-xs font-bold border border-slate-700 shadow-sm">
+                                <%= p.packages ? p.packages.length : 0 %>
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span
+                                class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium <%= p.status === 'inactive' ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' %>">
+                                <%= p.status==='inactive' ? 'Inactive' : 'Active' %>
+                            </span>
+                        </td>
+                        <% if (user.role==='admin' ) { %>
+                            <td class="px-6 py-4 text-right">
+                                <div class="flex items-center justify-end gap-2">
+                                    <button onclick="openModal(<%= JSON.stringify(p) %>)"
+                                        class="p-1.5 rounded-lg text-slate-400 hover:text-indigo-400 hover:bg-slate-800 transition"
+                                        title="Edit">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z">
+                                            </path>
+                                        </svg>
+                                    </button>
+                                    <a href="/products/delete/<%= p.id %>"
+                                        onclick="return confirm('Delete this product and all its packages?')"
+                                        class="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition"
+                                        title="Delete">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                            </path>
+                                        </svg>
+                                    </a>
+                                </div>
+                            </td>
+                            <% } %>
+                    </tr>
+                    <% }); %>
+                        <% if (products.length===0) { %>
+                            <tr>
+                                <td colspan="5" class="px-6 py-12 text-center text-slate-500">
+                                    <p>No products found.</p>
+                                </td>
+                            </tr>
+                            <% } %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // Simple Client-side Search for Products
+    document.getElementById('productSearch').addEventListener('keyup', function (e) {
+        const term = e.target.value.toLowerCase();
+        const rows = document.querySelectorAll('.product-row');
+
+        rows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+            row.style.display = text.includes(term) ? '' : 'none';
+        });
+    });
+</script>
+
+<% if (user.role==='admin' ) { %>
+    <!-- Unified Product Modal -->
+    <div id="productModal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog"
+        aria-modal="true">
+        <div class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm transition-opacity" onclick="closeModal()">
+        </div>
+        <div class="fixed inset-0 z-10 overflow-y-auto">
+            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <div
+                    class="relative transform overflow-hidden rounded-xl bg-slate-900 border border-slate-800 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-4xl">
+
+                    <div class="px-6 py-5 border-b border-slate-800 flex justify-between items-center">
+                        <h3 class="text-lg font-bold text-white" id="modalTitle">Add Product</h3>
+                        <button type="button" onclick="closeModal()" class="text-slate-400 hover:text-white transition">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <form id="productForm" onsubmit="saveProduct(event)" class="p-6 space-y-6">
+                        <input type="hidden" id="p_id" name="id">
+
+                        <!-- Product Basic Info -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-300 mb-1.5">Product
+                                        Name</label>
+                                    <input type="text" id="p_name" required
+                                        class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-300 mb-1.5">Status</label>
+                                    <select id="p_status"
+                                        class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50">
+                                        <option value="active">Active</option>
+                                        <option value="inactive">Inactive</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-1.5">Description</label>
+                                <textarea id="p_desc" rows="4"
+                                    class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Packages Section -->
+                        <div class="bg-slate-950/50 rounded-xl p-4 border border-slate-800">
+                            <div class="flex justify-between items-center mb-4">
+                                <h4 class="text-sm font-bold text-slate-300 uppercase tracking-wider">Packages
+                                    Configuration</h4>
+                                <button type="button" onclick="addPackageRow()"
+                                    class="text-xs bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 px-3 py-1.5 rounded-lg border border-indigo-500/20 transition flex items-center gap-1 font-medium">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 4v16m8-8H4"></path>
+                                    </svg>
+                                    Add Package
+                                </button>
+                            </div>
+
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-sm">
+                                    <thead
+                                        class="text-xs text-slate-500 font-semibold uppercase bg-slate-900/50 border-b border-slate-800">
+                                        <tr>
+                                            <th class="px-3 py-2 w-1/4">Name</th>
+                                            <th class="px-3 py-2 w-1/6">Duration (Days)</th>
+                                            <th class="px-3 py-2 w-1/6">Price (VND)</th>
+                                            <th class="px-3 py-2 w-1/6">Discount (%)</th>
+                                            <th class="px-3 py-2 w-10"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="packagesList" class="divide-y divide-slate-800">
+                                        <!-- Rows injected via JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="noPackagesMsg" class="text-center py-6 text-slate-500 italic text-xs hidden">No
+                                packages added
+                                yet. Click "Add Package" to start.</div>
+                        </div>
+
+                        <div class="pt-2 flex justify-end gap-3 border-t border-slate-800 mt-4 pt-4">
+                            <button type="button" onclick="closeModal()"
+                                class="px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition">Cancel</button>
+                            <button type="submit"
+                                class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-medium shadow-lg shadow-indigo-500/20 flex items-center gap-2 transition">
+                                <svg id="saveSpinner" class="animate-spin h-4 w-4 text-white hidden"
+                                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                        stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                    </path>
+                                </svg>
+                                Save Product
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentPackages = [];
+
+        function openModal(product = null) {
+            const modal = document.getElementById('productModal');
+            const title = document.getElementById('modalTitle');
+
+            // Reset Form
+            document.getElementById('p_id').value = '';
+            document.getElementById('p_name').value = '';
+            document.getElementById('p_desc').value = '';
+            document.getElementById('p_status').value = 'active';
+            currentPackages = [];
+
+            if (product) {
+                // Edit Mode
+                title.innerText = 'Edit Product: ' + product.name;
+                document.getElementById('p_id').value = product.id;
+                document.getElementById('p_name').value = product.name;
+                document.getElementById('p_desc').value = product.description || '';
+                document.getElementById('p_status').value = product.status || 'active'; // Assuming status exists
+
+                if (product.packages) {
+                    currentPackages = JSON.parse(JSON.stringify(product.packages));
+                }
+            } else {
+                // Add Mode
+                title.innerText = 'Add New Product';
+            }
+
+            renderPackages();
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('productModal').classList.add('hidden');
+        }
+
+        function renderPackages() {
+            const tbody = document.getElementById('packagesList');
+            const msg = document.getElementById('noPackagesMsg');
+            tbody.innerHTML = '';
+
+            if (currentPackages.length === 0) {
+                msg.classList.remove('hidden');
+            } else {
+                msg.classList.add('hidden');
+                currentPackages.forEach((pkg, index) => {
+                    const row = document.createElement('tr');
+                    row.className = 'group hover:bg-slate-900/50';
+                    row.innerHTML = `
+                        <td class="px-3 py-2">
+                            <input type="text" value="${pkg.name || ''}" onchange="updatePackage(${index}, 'name', this.value)" class="w-full bg-transparent border-b border-transparent focus:border-indigo-500 focus:outline-none text-white text-sm py-1 placeholder-slate-600" placeholder="Pkg Name" required>
+                        </td>
+                        <td class="px-3 py-2">
+                            <input type="number" value="${pkg.duration || ''}" onchange="updatePackage(${index}, 'duration', this.value)" class="w-full bg-transparent border-b border-transparent focus:border-indigo-500 focus:outline-none text-white text-sm py-1 text-center" placeholder="30" required>
+                        </td>
+                        <td class="px-3 py-2">
+                            <input type="number" value="${pkg.original_price || ''}" onchange="updatePackage(${index}, 'price', this.value)" class="w-full bg-transparent border-b border-transparent focus:border-indigo-500 focus:outline-none text-white text-sm py-1 text-center" placeholder="0" required>
+                        </td>
+                        <td class="px-3 py-2">
+                            <input type="number" value="${pkg.discount_percent || 0}" onchange="updatePackage(${index}, 'discount', this.value)" class="w-full bg-transparent border-b border-transparent focus:border-indigo-500 focus:outline-none text-white text-sm py-1 text-center" placeholder="0" min="0" max="100">
+                        </td>
+                        <td class="px-3 py-2 text-right">
+                            <button type="button" onclick="removePackage(${index})" class="text-slate-600 hover:text-rose-500 transition p-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+        }
+
+        function addPackageRow() {
+            currentPackages.push({ id: null, name: '', duration: 30, original_price: 0, discount_percent: 0 });
+            renderPackages();
+        }
+
+        function updatePackage(index, field, value) {
+            currentPackages[index][field] = value;
+            // Map legacy fields if new ones used
+            if (field === 'price') currentPackages[index].original_price = value;
+            if (field === 'discount') currentPackages[index].discount_percent = value;
+        }
+
+        function removePackage(index) {
+            currentPackages.splice(index, 1);
+            renderPackages();
+        }
+
+        async function saveProduct(e) {
+            e.preventDefault();
+            const btn = e.submitter;
+            const spinner = document.getElementById('saveSpinner');
+
+            // Validation
+            if (currentPackages.some(p => !p.name || !p.duration)) {
+                alert('Please fill in all package details (Name and Duration are required).');
+                return;
+            }
+
+            btn.disabled = true;
+            spinner.classList.remove('hidden');
+
+            const payload = {
+                id: document.getElementById('p_id').value || null,
+                name: document.getElementById('p_name').value,
+                description: document.getElementById('p_desc').value,
+                status: document.getElementById('p_status').value,
+                packages: currentPackages.map(p => ({
+                    id: p.id,
+                    name: p.name,
+                    duration: p.duration,
+                    price: p.original_price || p.price,
+                    discount: p.discount_percent || p.discount
+                }))
+            };
+
+            try {
+                const res = await fetch('/api/products/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    alert(data.message || 'Error saving product');
+                    btn.disabled = false;
+                    spinner.classList.add('hidden');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Network error');
+                btn.disabled = false;
+                spinner.classList.add('hidden');
+            }
+        }
+    </script>
+    <% } %>

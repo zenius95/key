@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>License Manager Pro - Admin</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], },
+                    colors: { slate: { 850: '#151f32', 900: '#0f172a', 950: '#020617', } }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-slate-950 text-slate-200 min-h-screen flex flex-col">
+    <!-- Navbar -->
+    <nav class="border-b border-slate-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <!-- Brand -->
+                <div class="flex items-center gap-3">
+                    <div
+                        class="bg-indigo-600 w-8 h-8 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z">
+                            </path>
+                        </svg>
+                    </div>
+                    <span class="text-lg font-bold text-white tracking-tight">License Manager</span>
+                </div>
+                <!-- Links -->
+                <div class="flex items-center gap-4">
+                    <div class="text-xs text-slate-400 bg-slate-800 px-3 py-1 rounded-full border border-slate-700">
+                        v1.2.0</div>
+                    <a href="/logout"
+                        class="text-sm text-slate-400 hover:text-white transition flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-slate-800">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
+                            </path>
+                        </svg>
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Navigation Tabs (Global Admin Menu) -->
+        <!-- We use a local variable 'activeTab' passed from the route render to determine state -->
+        <div class="flex space-x-4 mb-6 border-b border-slate-800">
+            <a href="/admin"
+                class="px-4 py-2 text-sm font-medium transition <%= (typeof activeTab !== 'undefined' && activeTab === 'dashboard') ? 'text-indigo-400 border-b-2 border-indigo-500' : 'text-slate-400 hover:text-slate-200' %>">Licenses</a>
+            <a href="/admin/users"
+                class="px-4 py-2 text-sm font-medium transition <%= (typeof activeTab !== 'undefined' && activeTab === 'users') ? 'text-indigo-400 border-b-2 border-indigo-500' : 'text-slate-400 hover:text-slate-200' %>">Users</a>
+            <a href="/admin/products"
+                class="px-4 py-2 text-sm font-medium transition <%= (typeof activeTab !== 'undefined' && activeTab === 'products') ? 'text-indigo-400 border-b-2 border-indigo-500' : 'text-slate-400 hover:text-slate-200' %>">Products
+                & Packages</a>
+            <a href="/admin/orders"
+                class="px-4 py-2 text-sm font-medium transition <%= (typeof activeTab !== 'undefined' && activeTab === 'orders') ? 'text-indigo-400 border-b-2 border-indigo-500' : 'text-slate-400 hover:text-slate-200' %>">Orders</a>
+        </div>
+
+        <%- body %>
+    </main>
+</body>
+
+</html>
