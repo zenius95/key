@@ -59,7 +59,8 @@ const saveProduct = async (req, res) => {
         // Upsert incoming packages
         for (const pkg of incomingPackages) {
             const original_price = parseFloat(pkg.original_price || pkg.price);
-            const max_uids = parseInt(pkg.max_uids) || 1;
+            let max_uids = parseInt(pkg.max_uids);
+            if (isNaN(max_uids)) max_uids = 1;
 
             if (pkg.id) {
                 // Update

@@ -162,6 +162,8 @@ const history = async (req, res) => {
             data: data,
             currentPage: page,
             totalPages: totalPages,
+            totalItems: totalItems,
+            limit: limit,
             path: '/history',
             query: req.query
         });
