@@ -97,7 +97,7 @@ const createOrder = async (req, res) => {
             return res.status(403).send('Unauthorized');
         }
 
-        const { user_id, package_id } = req.body;
+        const { user_id, package_id, duration } = req.body;
         const pkg = await db.Package.findByPk(package_id, {
             include: [{ model: db.Product, as: 'product' }]
         });
@@ -106,12 +106,16 @@ const createOrder = async (req, res) => {
             return res.status(404).send('Package not found');
         }
 
+        const durationMonths = parseInt(duration);
+        const amount = parseFloat(pkg.original_price) * durationMonths;
+        const durationDays = durationMonths * 30; // Approximation
+
         const order = await db.Order.create({
             user_id: user_id, // Assigned by Admin
             package_name: pkg.name,
             product_name: pkg.product ? pkg.product.name : 'Unknown', // Snapshot
-            amount: pkg.final_price,
-            duration: pkg.duration,
+            amount: amount,
+            duration: durationDays,
             status: 'completed' // Admin created orders are completed by default
         });
 
@@ -133,9 +137,13 @@ const createOrder = async (req, res) => {
                 // Get package of current active order
                 const currentPkg = await db.Package.findByPk(activeOrder.package_id);
 
-                // Compare Level: Price + ID
-                const currentLevel = (parseFloat(currentPkg.final_price) * 1000000) + currentPkg.id;
-                const newLevel = (parseFloat(pkg.final_price) * 1000000) + pkg.id;
+                // Compare Level: Price (monthly) + ID
+                // Use original_price as base
+                const currentPrice = currentPkg ? parseFloat(currentPkg.original_price) : 0;
+                const newPrice = parseFloat(pkg.original_price);
+
+                const currentLevel = (currentPrice * 1000000) + (currentPkg ? currentPkg.id : 0);
+                const newLevel = (newPrice * 1000000) + pkg.id;
 
                 if (newLevel <= currentLevel) {
                     // Not an upgrade
@@ -144,7 +152,7 @@ const createOrder = async (req, res) => {
                 // Calculate cumulative expiry
                 let baseDate = new Date(activeOrder.expiry_date);
                 if (baseDate < new Date()) baseDate = new Date();
-                baseDate.setDate(baseDate.getDate() + pkg.duration);
+                baseDate.setDate(baseDate.getDate() + durationDays);
 
                 // Update current order with new package and extended expiry
                 const upgradeOrder = await db.Order.create({
@@ -153,8 +161,8 @@ const createOrder = async (req, res) => {
                     package_id: pkg.id,
                     package_name: pkg.name,
                     product_name: pkg.product ? pkg.product.name : 'Unknown',
-                    amount: pkg.final_price,
-                    duration: pkg.duration,
+                    amount: amount,
+                    duration: durationDays,
                     status: 'completed',
                     expiry_date: baseDate,
                     hwid: activeOrder.hwid // Transfer HWID
@@ -168,7 +176,7 @@ const createOrder = async (req, res) => {
             } else {
                 // No active order, create new
                 const expiry = new Date();
-                expiry.setDate(expiry.getDate() + pkg.duration);
+                expiry.setDate(expiry.getDate() + durationDays);
 
                 await db.Order.update({
                     product_id: pkg.product_id,

@@ -17,6 +17,12 @@ const requireAuth = async (req, res, next) => {
     if (req.session && req.session.userId) {
         return next();
     }
+
+    // Check if it's an API request
+    if (req.path.startsWith('/api/') || req.xhr || (req.headers.accept && req.headers.accept.includes('application/json'))) {
+        return res.status(200).json({ success: false, message: 'Unauthorized' });
+    }
+
     return res.redirect('/login');
 };
 

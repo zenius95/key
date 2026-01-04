@@ -304,9 +304,20 @@
                                     <option value="<%= pkg.id %>">
                                         [<%= pkg.product ? pkg.product.name : 'Unknown' %>] <%= pkg.name %> - <%= new
                                                     Intl.NumberFormat('vi-VN', { style: 'currency' , currency: 'VND'
-                                                    }).format(pkg.final_price) %>
+                                                    }).format(pkg.original_price) %>/tháng
                                     </option>
                                     <% }); %>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1.5">Thời hạn</label>
+                            <select name="duration" required
+                                class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50">
+                                <option value="1">1 Tháng</option>
+                                <option value="3">3 Tháng</option>
+                                <option value="6">6 Tháng</option>
+                                <option value="12">1 Năm</option>
                             </select>
                         </div>
 

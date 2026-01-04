@@ -37,6 +37,10 @@ module.exports = (sequelize, DataTypes) => {
         last_login: {
             type: DataTypes.DATE,
             allowNull: true
+        },
+        db_secret_key: {
+            type: DataTypes.TEXT,
+            allowNull: true
         }
     });
 
