@@ -25,7 +25,7 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
             <!-- Left Column: Options -->
-            <div class="lg:col-span-8 space-y-10">
+            <div class="lg:col-span-7 space-y-10">
 
                 <!-- Step 1: Product Selection -->
                 <% if (products.length !==1) { %>
@@ -117,7 +117,8 @@
                             <div
                                 class="bg-gradient-to-r from-amber-500/10 to-orange-500/5 border border-amber-500/10 rounded-2xl p-4 flex items-start gap-4 text-amber-300 mb-8">
                                 <div class="p-2 bg-amber-500/10 rounded-lg shrink-0 mt-0.5"><i
-                                        class="ri-lightbulb-flash-line"></i></div>
+                                        class="ri-lightbulb-flash-line text-lg w-5 h-5 flex items-center justify-center"></i>
+                                </div>
                                 <div>
                                     <p class="font-medium text-amber-200">Lưu ý về giá</p>
                                     <p class="text-sm mt-1 text-amber-400/80">Giá hiển thị là đơn giá theo tháng (Đã áp
@@ -139,14 +140,10 @@
             </div>
 
             <!-- Right Column: Summary (Sticky) -->
-            <div class="lg:col-span-4">
+            <div class="lg:col-span-5">
                 <div class="sticky top-8">
                     <div
                         class="bg-slate-900/80 backdrop-blur-2xl border border-slate-800 rounded-3xl p-6 shadow-2xl shadow-black/50 overflow-hidden relative">
-                        <!-- Top Gradient Line -->
-                        <div
-                            class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
-                        </div>
 
                         <!-- Header -->
                         <h3 class="text-lg font-bold text-white mb-5 flex items-center gap-2">
@@ -239,8 +236,8 @@
 
                         <!-- Error Alert -->
                         <div id="balance-warning"
-                            class="hidden mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-start gap-2 animate-fade-in-up">
-                            <i class="ri-alert-fill text-rose-500 mt-0.5"></i>
+                            class="hidden mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center gap-3 animate-fade-in-up">
+                            <i class="ri-alert-fill text-red-500 text-lg"></i>
                             <p class="text-xs text-rose-300/80 leading-relaxed">Số dư không đủ để thực hiện giao dịch.
                             </p>
                         </div>
@@ -570,7 +567,10 @@
     }
 
     async function submitOrder() {
-        if (!selectedPackageId) return; // Should be disabled anyway
+        if (!selectedPackageId) {
+            alert('Vui lòng chọn một gói dịch vụ để tiếp tục!');
+            return;
+        }
 
         if (!confirm('Xác nhận thanh toán gói dịch vụ này?')) return;
 

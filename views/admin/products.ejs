@@ -341,7 +341,7 @@
             };
 
             try {
-                const res = await fetch('/api/products/save', {
+                const res = await fetch('/products/save', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)

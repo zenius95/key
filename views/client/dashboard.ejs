@@ -1,91 +1,300 @@
-<div class="max-w-7xl mx-auto">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-
-        <!-- Welcome Card -->
-        <div
-            class="md:col-span-2 bg-gradient-to-br from-indigo-900/50 to-slate-900 border border-slate-800 rounded-2xl p-8 relative overflow-hidden group">
-            <div
-                class="absolute top-0 right-0 -mt-10 -mr-10 w-48 h-48 bg-indigo-500/20 blur-3xl rounded-full group-hover:bg-indigo-500/30 transition duration-700">
-            </div>
-            <div class="relative z-10">
-                <h2 class="text-3xl font-bold text-white mb-2">Xin chào, <%= user.full_name %>!</h2>
-                <p class="text-slate-400 max-w-xl">Chào mừng bạn đến với hệ thống quản lý. Tại đây bạn có thể kiểm tra
-                    số
-                    dư, quản lý thông tin cá nhân và xem các dịch vụ đang hoạt động.</p>
-            </div>
+<div class="max-w-7xl mx-auto -mt-6">
+    <!-- Cover Profil -->
+    <div class="relative h-60 rounded-3xl overflow-hidden shadow-2xl group">
+        <div class="absolute inset-0 bg-gradient-to-r from-violet-600 via-indigo-600 to-purple-600 animate-gradient-x">
         </div>
+        <div class="absolute inset-0 bg-[url('/images/pattern.png')] opacity-20 mix-blend-overlay"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent"></div>
 
-        <!-- Balance Card -->
+        <!-- Quick Actions (Top Right) -->
         <div
-            class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg shadow-black/20 hover:border-slate-700 transition duration-300">
-            <div class="flex justify-between items-start mb-4">
-                <div>
-                    <p class="text-sm font-bold text-slate-500 uppercase tracking-widest">Số dư hiện tại</p>
-                    <h3 class="text-4xl font-bold text-emerald-400 mt-2 tracking-tight">
-                        <%= new Intl.NumberFormat('vi-VN', { style: 'currency' , currency: 'VND' }).format(user.balance)
-                            %>
-                    </h3>
-                </div>
-                <div class="p-3 bg-emerald-500/10 rounded-xl text-emerald-400">
-                    <i class="ri-wallet-3-fill text-2xl"></i>
-                </div>
-            </div>
-            <div class="mt-4 pt-4 border-t border-slate-800 flex gap-3">
-                <button disabled
-                    class="flex-1 py-2 px-4 bg-slate-800 text-slate-500 rounded-xl text-sm font-bold cursor-not-allowed border border-slate-700/50 flex justify-center items-center gap-2">
-                    <i class="ri-add-line"></i>
-                    Nạp tiền
-                </button>
-                <button disabled
-                    class="flex-1 py-2 px-4 bg-slate-800 text-slate-500 rounded-xl text-sm font-bold cursor-not-allowed border border-slate-700/50 flex justify-center items-center gap-2">
-                    <i class="ri-vip-crown-line"></i>
-                    Mua gói
-                </button>
-            </div>
-            <p class="text-xs text-slate-500 mt-3 text-center italic">Tính năng nạp tiền và mua gói đang phát triển</p>
+            class="absolute top-6 right-6 flex gap-3 opacity-0 group-hover:opacity-100 transition duration-300 transform translate-y-2 group-hover:translate-y-0">
+            <a href="/profile"
+                class="px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-xl text-white text-sm font-bold transition border border-white/10 flex items-center gap-2">
+                <i class="ri-settings-4-line"></i> Cài đặt
+            </a>
         </div>
+    </div>
 
-        <!-- Quick Stats -->
-        <div
-            class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg shadow-black/20 hover:border-slate-700 transition duration-300">
-            <h3 class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-6">Thông tin tài khoản</h3>
+    <!-- User Info Section -->
+    <div class="px-6 md:px-10 pb-8 relative z-10 -mt-28">
+        <div class="flex flex-col md:flex-row items-end md:items-center gap-6">
+            <!-- Avatar -->
+            <div class="relative shrink-0">
+                <div class="w-32 h-32 rounded-full bg-slate-900 p-1.5 shadow-2xl ring-4 ring-slate-900/50">
+                    <div
+                        class="w-full h-full rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-4xl font-bold uppercase shadow-inner relative overflow-hidden group">
+                        <% if (user.avatar) { %>
+                            <img src="<%= user.avatar %>" alt="Avatar" class="w-full h-full object-cover">
+                            <% } else { %>
+                                <%= user.full_name.charAt(0) %>
+                                    <% } %>
 
-            <div class="space-y-4">
-                <div class="flex items-center justify-between p-3 bg-slate-950/50 rounded-xl border border-slate-800">
-                    <div class="flex items-center gap-3">
-                        <div class="p-2 bg-indigo-500/10 rounded-lg text-indigo-400">
-                            <i class="ri-fingerprint-line text-xl"></i>
-                        </div>
-                        <span class="text-sm font-medium text-slate-300">Mã thành viên</span>
+                                        <!-- Hover Effect overlay -->
+                                        <div
+                                            class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition cursor-pointer">
+                                            <i class="ri-camera-fill text-2xl"></i>
+                                        </div>
                     </div>
-                    <span class="font-mono text-sm font-bold text-white bg-slate-800 px-2 py-1 rounded">#<%= user.id %>
-                    </span>
                 </div>
-
-                <div class="flex items-center justify-between p-3 bg-slate-950/50 rounded-xl border border-slate-800">
-                    <div class="flex items-center gap-3">
-                        <div class="p-2 bg-indigo-500/10 rounded-lg text-indigo-400">
-                            <i class="ri-calendar-line text-xl"></i>
-                        </div>
-                        <span class="text-sm font-medium text-slate-300">Gia nhập</span>
+                <!-- Status Badge -->
+                <div class="absolute bg-slate-900 p-1 rounded-full" style="right: 7px; bottom: 7px">
+                    <div class="bg-emerald-500 w-5 h-5 rounded-full border-2 border-slate-900 flex items-center justify-center"
+                        title="Online">
                     </div>
-                    <span class="text-sm font-medium text-slate-400">
-                        <%= new Date(user.createdAt).toLocaleDateString('vi-VN') %>
-                    </span>
                 </div>
+            </div>
 
-                <div class="flex items-center justify-between p-3 bg-slate-950/50 rounded-xl border border-slate-800">
+            <!-- Name & Balance -->
+            <div class="flex-1 mb-2">
+                <div class="flex flex-col gap-2">
                     <div class="flex items-center gap-3">
-                        <div class="p-2 bg-indigo-500/10 rounded-lg text-indigo-400">
-                            <i class="ri-checkbox-circle-line text-xl"></i>
-                        </div>
-                        <span class="text-sm font-medium text-slate-300">Trạng thái</span>
+                        <h1 class="text-2xl font-bold text-white tracking-tight">
+                            <%= user.full_name %>
+                        </h1>
+                        <% if (user.role==='admin' ) { %>
+                            <span
+                                class="px-2 py-0.5 rounded-md bg-indigo-500/20 text-indigo-400 text-[10px] font-bold border border-indigo-500/30 uppercase tracking-wider">Admin</span>
+                            <% } %>
                     </div>
-                    <span
-                        class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Hoạt
-                        động</span>
+
+                    <!-- Balance moved here -->
+                    <div class="flex items-center gap-3">
+                        <div class="text-1xl font-bold text-emerald-400 font-mono tracking-tight"
+                            title="Số dư khả dụng">
+                            <%= new Intl.NumberFormat('vi-VN', { style: 'currency' , currency: 'VND'
+                                }).format(user.balance) %>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        <!-- Left Column: Personal Info & Stats -->
+        <div class="">
+            <!-- Mobile Balance Card (only visible on mobile) -->
+            <div class="md:hidden bg-slate-900/50 backdrop-blur-xl border border-slate-800 rounded-2xl p-6">
+                <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mb-1">Số dư khả dụng</p>
+                <div class="flex justify-between items-center">
+                    <span class="text-3xl font-bold text-emerald-400 font-mono tracking-tight">
+                        <%= new Intl.NumberFormat('vi-VN', { style: 'currency' , currency: 'VND' }).format(user.balance)
+                            %>
+                    </span>
+                    <a href="/deposit"
+                        class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-sm font-bold transition shadow-lg shadow-emerald-500/20">
+                        Nạp ngay
+                    </a>
+                </div>
+            </div>
+
+            <!-- Info Card -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden mb-6">
+                <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-800/20">
+                    <h3 class="font-bold text-white flex items-center gap-2">
+                        <i class="ri-user-smile-line text-indigo-400"></i> Thông tin cá nhân
+                    </h3>
+                    <a href="/profile" class="text-xs text-slate-400 hover:text-white transition">Chỉnh sửa</a>
+                </div>
+                <div class="p-5 space-y-4">
+                    <div class="flex justify-between items-center group">
+                        <span class="text-sm text-slate-500 flex items-center gap-2 shrink-0"><i
+                                class="ri-key-2-line"></i> License Key</span>
+                        <div class="flex items-center gap-2 max-w-[60%]">
+                            <span
+                                class="text-xs font-mono font-bold text-slate-200 bg-slate-800 px-2 py-1.5 rounded truncate select-all group-hover:bg-indigo-500/20 group-hover:text-indigo-300 transition block w-full text-right"
+                                title="<%= user.license_key %>">
+                                <%= user.license_key %>
+                            </span>
+                            <button
+                                onclick="navigator.clipboard.writeText('<%= user.license_key %>'); alert('Đã sao chép License Key!')"
+                                class="w-7 h-7 flex shrink-0 items-center justify-center rounded bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition"
+                                title="Sao chép">
+                                <i class="ri-file-copy-line text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Moved Email & Date here -->
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-slate-500 flex items-center gap-2"><i class="ri-mail-line"></i>
+                            Email</span>
+                        <span class="text-sm font-medium text-slate-200 truncate max-w-[150px]"
+                            title="<%= user.email %>">
+                            <%= user.email %>
+                        </span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-slate-500 flex items-center gap-2"><i class="ri-calendar-line"></i>
+                            Tham gia</span>
+                        <span class="text-sm font-medium text-slate-200">
+                            <%= new Date(user.createdAt).toLocaleDateString('vi-VN') %>
+                        </span>
+                    </div>
+
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-slate-500 flex items-center gap-2"><i class="ri-phone-line"></i> Số
+                            điện thoại</span>
+                        <span class="text-sm font-medium text-slate-200">
+                            <%= user.phone || 'Chưa cập nhật' %>
+                        </span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-slate-500 flex items-center gap-2"><i class="ri-shield-user-line"></i>
+                            Loại tài khoản</span>
+                        <span class="text-sm font-medium text-slate-200">Thành viên</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="grid grid-cols-2 gap-3">
+                <a href="/deposit"
+                    class="p-4 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 hover:bg-slate-800/50 rounded-2xl flex flex-col items-center justify-center gap-2 transition group">
+                    <div
+                        class="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition">
+                        <i class="ri-bank-card-line text-xl"></i>
+                    </div>
+                    <span class="text-sm font-bold text-slate-300">Nạp tiền</span>
+                </a>
+                <a href="/buy"
+                    class="p-4 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 hover:bg-slate-800/50 rounded-2xl flex flex-col items-center justify-center gap-2 transition group">
+                    <div
+                        class="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-400 group-hover:scale-110 transition">
+                        <i class="ri-vip-crown-line text-xl"></i>
+                    </div>
+                    <span class="text-sm font-bold text-slate-300">Mua gói</span>
+                </a>
+                <a href="/history/orders"
+                    class="p-4 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 hover:bg-slate-800/50 rounded-2xl flex flex-col items-center justify-center gap-2 transition group">
+                    <div
+                        class="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400 group-hover:scale-110 transition">
+                        <i class="ri-file-list-3-line text-xl"></i>
+                    </div>
+                    <span class="text-sm font-bold text-slate-300">Đơn hàng</span>
+                </a>
+                <a href="/history/deposits"
+                    class="p-4 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 hover:bg-slate-800/50 rounded-2xl flex flex-col items-center justify-center gap-2 transition group">
+                    <div
+                        class="w-10 h-10 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-400 group-hover:scale-110 transition">
+                        <i class="ri-history-line text-xl"></i>
+                    </div>
+                    <span class="text-sm font-bold text-slate-300">Lịch sử</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Right Column: Active Services -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Section Header -->
+            <div class="flex items-center justify-between">
+                <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                    <i class="ri-stack-line text-indigo-400"></i> Gói dịch vụ đang dùng
+                </h3>
+            </div>
+
+            <% if (activeOrders && activeOrders.length> 0) { %>
+                <div class="grid grid-cols-1 gap-4">
+                    <% activeOrders.forEach(order=> {
+                        // Calculate progress
+                        const now = new Date();
+                        const created = new Date(order.createdAt);
+                        const expiry = new Date(order.expiry_date);
+                        const totalDuration = expiry - created;
+                        const elapsed = now - created;
+                        const percent = Math.min(100, Math.max(0, (elapsed / totalDuration) * 100));
+                        const daysLeft = Math.ceil((expiry - now) / (1000 * 60 * 60 * 24));
+                        %>
+                        <div
+                            class="bg-slate-900 border border-slate-800 rounded-2xl p-6 relative overflow-hidden group hover:border-indigo-500/30 transition shadow-lg">
+                            <div
+                                class="absolute inset-0 bg-gradient-to-r from-indigo-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition duration-500">
+                            </div>
+
+                            <div class="flex gap-4 relative z-10">
+                                <div
+                                    class="w-16 h-16 rounded-xl bg-slate-800 flex items-center justify-center shrink-0 border border-slate-700">
+                                    <i class="ri-inbox-archive-line text-3xl text-indigo-400"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex justify-between items-start mb-1">
+                                        <div>
+                                            <h4 class="text-lg font-bold text-white truncate">
+                                                <%= order.package_name %>
+                                            </h4>
+                                            <p class="text-sm text-slate-400">
+                                                <%= order.product_name %>
+                                            </p>
+                                        </div>
+                                        <div class="text-right">
+                                            <span
+                                                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                                <i
+                                                    class="ri-checkbox-circle-line w-3.5 h-3.5 flex items-center justify-center"></i>
+                                                Đang hoạt động
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Progress Bar -->
+                                    <div class="mt-4">
+                                        <div class="flex justify-between text-xs font-medium text-slate-500 mb-1.5">
+                                            <span>Đã sử dụng <%= Math.round(percent) %>%</span>
+                                            <span class="text-indigo-400 font-bold">Còn <%= daysLeft %> ngày</span>
+                                        </div>
+                                        <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                                            <div class="bg-gradient-to-r from-indigo-500 to-purple-500 h-2 rounded-full transition-all duration-1000"
+                                                style="width: <%= percent %>%"></div>
+                                        </div>
+                                        <div class="mt-2 text-xs text-slate-500 flex justify-between">
+                                            <span>Bắt đầu: <%= new Date(order.createdAt).toLocaleDateString('vi-VN') %>
+                                            </span>
+                                            <span>Hết hạn: <%= new Date(order.expiry_date).toLocaleDateString('vi-VN')
+                                                    %></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <% }); %>
+                </div>
+                <% } else { %>
+                    <!-- Empty State -->
+                    <div class="bg-slate-900/50 border border-dashed border-slate-800 rounded-2xl p-12 text-center">
+                        <div class="w-20 h-20 rounded-full bg-slate-800 flex items-center justify-center mx-auto mb-4">
+                            <i class="ri-inbox-line text-4xl text-slate-600"></i>
+                        </div>
+                        <h4 class="text-lg font-bold text-white mb-2">Chưa có dịch vụ nào</h4>
+                        <p class="text-slate-400 max-w-sm mx-auto mb-6">Bạn chưa đăng ký gói dịch vụ nào. Hãy khám phá
+                            các gói dịch vụ của chúng tôi để bắt đầu.</p>
+                        <a href="/buy"
+                            class="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold transition shadow-lg shadow-indigo-600/20">
+                            <i class="ri-rocket-line"></i> Khám phá ngay
+                        </a>
+                    </div>
+                    <% } %>
+        </div>
+    </div>
 </div>
+
+<style>
+    @keyframes gradient-x {
+
+        0%,
+        100% {
+            background-position: 0% 50%;
+        }
+
+        50% {
+            background-position: 100% 50%;
+        }
+    }
+
+    .animate-gradient-x {
+        background-size: 200% 200%;
+        animation: gradient-x 15s ease infinite;
+    }
+</style>

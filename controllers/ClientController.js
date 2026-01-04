@@ -6,11 +6,23 @@ const dashboard = async (req, res) => {
     try {
         const user = await db.User.findByPk(req.session.userId);
 
+        // Fetch active orders
+        const activeOrders = await db.Order.findAll({
+            where: {
+                user_id: user.id,
+                status: 'completed',
+                expiry_date: { [db.Sequelize.Op.gt]: new Date() }
+            },
+            order: [['expiry_date', 'DESC']]
+        });
+
         // Use a client-specific layout
         res.render('client/dashboard', {
             layout: 'layout_client',
             user: user,
-            activeTab: 'dashboard'
+            activeOrders: activeOrders,
+            activeTab: 'dashboard',
+            path: '/dashboard'
         });
     } catch (error) {
         console.error(error);
@@ -121,7 +133,7 @@ const getBalance = async (req, res) => {
 const history = async (req, res) => {
     try {
         const user = await db.User.findByPk(req.session.userId);
-        const tab = req.query.tab || 'orders';
+        const tab = req.params.tab || req.query.tab || 'orders';
         const page = parseInt(req.query.page) || 1;
         const limit = 10;
         const offset = (page - 1) * limit;
@@ -164,7 +176,7 @@ const history = async (req, res) => {
             totalPages: totalPages,
             totalItems: totalItems,
             limit: limit,
-            path: '/history',
+            path: `/history/${tab}`,
             query: req.query
         });
 
@@ -254,13 +266,41 @@ const processBuy = async (req, res) => {
             return res.json({ success: false, message: 'Số dư không đủ. Vui lòng nạp thêm tiền.' });
         }
 
+        // Check for existing active order
+        const activeOrder = await db.Order.findOne({
+            where: {
+                user_id: user.id,
+                status: 'completed',
+                expiry_date: { [db.Sequelize.Op.gt]: new Date() }
+            },
+            order: [['expiry_date', 'DESC']],
+            transaction: t
+        });
+
         // Deduct Balance
         user.balance = parseFloat(user.balance) - totalAmount;
         await user.save({ transaction: t });
 
-        // Create Order
-        const expiryDate = new Date();
-        expiryDate.setDate(expiryDate.getDate() + (month * 30));
+        // Calculate Expiry
+        let expiryDate = new Date();
+        let upgradeMessage = '';
+
+        if (activeOrder) {
+            // Calculate remaining time
+            const now = new Date();
+            const remainingTime = activeOrder.expiry_date.getTime() - now.getTime();
+
+            // Add remaining time to new duration
+            expiryDate = new Date(now.getTime() + (month * 30 * 24 * 60 * 60 * 1000) + remainingTime);
+
+            // Cancel old order
+            activeOrder.status = 'cancelled';
+            await activeOrder.save({ transaction: t });
+
+            upgradeMessage = ` (Đã cộng dồn thời gian từ đơn #${activeOrder.id})`;
+        } else {
+            expiryDate.setDate(expiryDate.getDate() + (month * 30));
+        }
 
         // Construct detailed package name
         const uidInfo = pkg.max_uids === 0 ? 'Unlimited UIDs' : `${pkg.max_uids} UIDs`;
@@ -273,11 +313,11 @@ const processBuy = async (req, res) => {
             package_id: pkg.id,
             product_id: product.id,
             amount: totalAmount,
-            duration: month * 30,
+            duration: month * 30, // Note: This stores the purchased duration, not total validity
             status: 'completed',
             expiry_date: expiryDate,
             payment_method: 'balance',
-            hwid: null // Assuming HWID logic handled elsewhere or later
+            hwid: null
         }, { transaction: t });
 
         // Log Activity

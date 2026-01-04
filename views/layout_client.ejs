@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="/css/style.css?v=2" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet" />
     <script>
         tailwind.config = {
@@ -78,29 +79,37 @@
                     <i class="ri-user-settings-line text-indigo-400 text-lg"></i>
                     Thông tin cá nhân
                 </a>
-                <div class="h-px bg-slate-700 mx-2"></div>
-                <a href="/logout"
-                    class="flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-rose-900/20 hover:text-rose-400 transition">
-                    <i class="ri-logout-box-r-line text-rose-400 text-lg"></i>
-                    Đăng xuất
-                </a>
+                <% if (user.role==='admin' ) { %>
+                    <div class="h-px bg-slate-700 mx-2"></div>
+                    <a href="/admin"
+                        class="flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-700 hover:text-white transition">
+                        <i class="ri-shield-keyhole-line text-indigo-400 text-lg"></i>
+                        Truy cập Admin
+                    </a>
+                    <% } %>
+                        <div class="h-px bg-slate-700 mx-2"></div>
+                        <a href="/logout"
+                            class="flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-rose-900/20 hover:text-rose-400 transition">
+                            <i class="ri-logout-box-r-line text-rose-400 text-lg"></i>
+                            Đăng xuất
+                        </a>
             </div>
 
             <!-- User Toggle -->
             <button onclick="toggleUserDropdown()"
-                class="w-full bg-slate-800/50 hover:bg-slate-800 rounded-xl p-2 flex items-center gap-3 transition group border border-transparent hover:border-slate-700">
+                class="w-full bg-slate-900 hover:bg-slate-800 rounded-2xl p-3 flex items-center gap-3 transition group border border-slate-800 hover:border-slate-700 shadow-sm">
                 <div
-                    class="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-xs shadow-md group-hover:shadow-indigo-500/20 transition">
+                    class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-md group-hover:shadow-indigo-500/20 transition shrink-0 ring-2 ring-slate-900 group-hover:ring-indigo-500/30">
                     <%= user.full_name.charAt(0).toUpperCase() %>
                 </div>
-                <div class="flex-1 text-left overflow-hidden">
-                    <p class="text-sm font-medium text-white truncate mb-1">
+                <div class="flex-1 text-left min-w-0">
+                    <p
+                        class="text-sm font-bold text-white truncate mb-0.5 group-hover:text-indigo-200 transition-colors">
                         <%= user.full_name %>
                     </p>
-                    <div
-                        class="inline-flex items-center px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
-                        <i class="ri-money-dollar-circle-line mr-1"></i>
-                        <span class="text-[10px] font-bold font-mono">
+                    <div class="flex items-center text-emerald-400 gap-1.5">
+                        <i class="ri-wallet-3-fill text-xs opacity-80"></i>
+                        <span class="text-xs font-bold font-mono tracking-tight opacity-90">
                             <%= new Intl.NumberFormat('vi-VN', { style: 'currency' , currency: 'VND'
                                 }).format(user.balance) %>
                         </span>
@@ -109,61 +118,50 @@
                 <i id="dropdownArrow"
                     class="ri-arrow-down-s-line text-slate-500 group-hover:text-white transition transform duration-200 text-lg"></i>
             </button>
-        </div>
 
-        <script>
-            function toggleUserDropdown() {
-                const dropdown = document.getElementById('userDropdown');
-                const arrow = document.getElementById('dropdownArrow');
 
-                if (dropdown.classList.contains('hidden')) {
-                    // Show
-                    dropdown.classList.remove('hidden');
-                    // Small delay to allow transition
-                    requestAnimationFrame(() => {
-                        dropdown.classList.remove('scale-95', 'opacity-0');
-                        dropdown.classList.add('scale-100', 'opacity-100');
-                        arrow.classList.add('rotate-180');
-                    });
-                } else {
-                    // Hide
-                    dropdown.classList.remove('scale-100', 'opacity-100');
-                    dropdown.classList.add('scale-95', 'opacity-0');
-                    arrow.classList.remove('rotate-180');
+            <script>
+                function toggleUserDropdown() {
+                    const dropdown = document.getElementById('userDropdown');
+                    const arrow = document.getElementById('dropdownArrow');
 
-                    setTimeout(() => {
-                        dropdown.classList.add('hidden');
-                    }, 200); // Match duration
+                    if (dropdown.classList.contains('hidden')) {
+                        // Show
+                        dropdown.classList.remove('hidden');
+                        // Small delay to allow transition
+                        requestAnimationFrame(() => {
+                            dropdown.classList.remove('scale-95', 'opacity-0');
+                            dropdown.classList.add('scale-100', 'opacity-100');
+                            arrow.classList.add('rotate-180');
+                        });
+                    } else {
+                        // Hide
+                        dropdown.classList.remove('scale-100', 'opacity-100');
+                        dropdown.classList.add('scale-95', 'opacity-0');
+                        arrow.classList.remove('rotate-180');
+
+                        setTimeout(() => {
+                            dropdown.classList.add('hidden');
+                        }, 200); // Match duration
+                    }
                 }
-            }
 
-            // Close when clicking outside
-            document.addEventListener('click', function (event) {
-                const dropdown = document.getElementById('userDropdown');
-                const button = event.target.closest('button');
-                const isClickInside = button && button.getAttribute('onclick') === 'toggleUserDropdown()';
+                // Close when clicking outside
+                document.addEventListener('click', function (event) {
+                    const dropdown = document.getElementById('userDropdown');
+                    const button = event.target.closest('button');
+                    const isClickInside = button && button.getAttribute('onclick') === 'toggleUserDropdown()';
 
-                if (!isClickInside && !dropdown.contains(event.target) && !dropdown.classList.contains('hidden')) {
-                    toggleUserDropdown();
-                }
-            });
-        </script>
+                    if (!isClickInside && !dropdown.contains(event.target) && !dropdown.classList.contains('hidden')) {
+                        toggleUserDropdown();
+                    }
+                });
+            </script>
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 ml-64 p-8 overflow-y-auto h-screen">
+    <main class="flex-1 ml-64 py-20 overflow-y-auto h-screen">
         <!-- Header -->
-        <header class="flex justify-between items-center mb-8">
-            <h1 class="text-2xl font-bold text-white tracking-tight">
-                <% if (activeTab==='dashboard' ) { %>
-                    Tổng quan
-                    <% } else if (activeTab==='profile' ) { %>
-                        Thông tin cá nhân
-                        <% } %>
-            </h1>
-
-
-        </header>
 
         <!-- Body -->
         <%- body %>

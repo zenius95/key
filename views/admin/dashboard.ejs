@@ -154,7 +154,7 @@
         activeBtn.classList.add('bg-indigo-600', 'text-white', 'active', 'shadow-lg', 'shadow-indigo-600/20');
 
         try {
-            const response = await fetch(`/api/admin/revenue-stats?type=${type}&t=${Date.now()}`); // Added timestamp to prevent caching
+            const response = await fetch(`/admin/revenue-stats?type=${type}&t=${Date.now()}`); // Added timestamp to prevent caching
             const { labels, data, dateRange } = await response.json();
 
             // Update range display with nice effect

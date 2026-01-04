@@ -1,6 +1,6 @@
 const db = require('../models');
 
-async function logActivity(userId, action, balanceChange = 0, newBalance = 0, req, transactionId = null) {
+async function logActivity(userId, action, balanceChange = 0, newBalance = 0, req, transactionId = null, t = null) {
     try {
         let ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
         if (ipAddress && ipAddress.substr(0, 7) == "::ffff:") {
@@ -16,7 +16,7 @@ async function logActivity(userId, action, balanceChange = 0, newBalance = 0, re
             newBalance,
             ipAddress,
             userAgent
-        });
+        }, { transaction: t });
     } catch (error) {
         console.error('Error logging activity:', error);
     }

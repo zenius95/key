@@ -4,7 +4,7 @@ const ProductController = require('../controllers/ProductController');
 const { requireAuth } = require('../middlewares/authMiddleware');
 
 router.get('/admin/products', requireAuth, ProductController.listProducts);
-router.post('/api/products/save', requireAuth, ProductController.saveProduct);
+router.post('/products/save', requireAuth, ProductController.saveProduct);
 router.get('/products/delete/:id', requireAuth, ProductController.deleteProduct);
 
 module.exports = router;

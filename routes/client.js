@@ -13,7 +13,9 @@ router.get('/', requireAuth, ClientController.dashboard);
 router.get('/profile', requireAuth, ClientController.profile);
 router.post('/profile', requireAuth, ClientController.updateProfile);
 router.get('/deposit', requireAuth, ClientController.deposit);
+// History routes
 router.get('/history', requireAuth, ClientController.history);
+router.get('/history/:tab', requireAuth, ClientController.history);
 router.get('/buy', requireAuth, ClientController.buy);
 router.post('/buy', requireAuth, ClientController.processBuy);
 router.get('/balance', requireAuth, ClientController.getBalance);

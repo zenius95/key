@@ -8,11 +8,11 @@
             </div>
 
             <div class="flex p-1 bg-slate-950 rounded-xl border border-slate-800">
-                <a href="/history?tab=orders"
+                <a href="/history/orders"
                     class="px-4 py-2 rounded-lg text-sm font-medium transition <%= currentTab === 'orders' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-400 hover:text-white' %>">
                     Lịch sử đơn hàng
                 </a>
-                <a href="/history?tab=deposits"
+                <a href="/history/deposits"
                     class="px-4 py-2 rounded-lg text-sm font-medium transition <%= currentTab === 'deposits' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-400 hover:text-white' %>">
                     Lịch sử nạp tiền
                 </a>
@@ -23,53 +23,106 @@
             <table class="w-full text-left border-collapse">
                 <% if (currentTab==='orders' ) { %>
                     <thead>
-                        <tr class="border-b border-slate-800 text-xs uppercase bg-slate-950/50 text-slate-400">
-                            <th class="px-6 py-4 font-semibold">ID</th>
-                            <th class="px-6 py-4 font-semibold">Gói dịch vụ</th>
-                            <th class="px-6 py-4 font-semibold">Thanh toán</th>
-                            <th class="px-6 py-4 font-semibold">Ngày tạo</th>
-                            <th class="px-6 py-4 font-semibold">Trạng thái</th>
+                        <tr
+                            class="border-b border-slate-800 text-[10px] uppercase bg-slate-950/50 text-slate-400 font-bold tracking-wider">
+                            <th class="px-6 py-4">Mã đơn hàng</th>
+                            <th class="px-6 py-4">Sản phẩm / Gói</th>
+                            <th class="px-6 py-4 text-center">Thời gian</th>
+                            <th class="px-6 py-4 text-center">Thanh toán</th>
+                            <th class="px-6 py-4 text-right">Trạng thái</th>
                         </tr>
                     </thead>
                     <tbody class="text-sm divide-y divide-slate-800">
                         <% if (data.length===0) { %>
                             <tr>
-                                <td colspan="5" class="px-6 py-8 text-center text-slate-500">
-                                    Chưa có đơn hàng nào.
+                                <td colspan="5"
+                                    class="px-6 py-12 text-center text-slate-500 flex flex-col items-center justify-center gap-2">
+                                    <i
+                                        class="ri-shopping-cart-2-line text-4xl mb-2 opacity-50 w-9 h-9 flex items-center justify-center"></i>
+                                    <p>Bạn chưa có đơn hàng nào.</p>
+                                    <a href="/buy"
+                                        class="text-indigo-400 hover:text-indigo-300 text-xs font-bold uppercase tracking-wider mt-2 hover:underline">Mua
+                                        gói ngay</a>
                                 </td>
                             </tr>
                             <% } else { %>
                                 <% data.forEach(order=> { %>
-                                    <tr class="group hover:bg-slate-800/50 transition duration-150">
-                                        <td class="px-6 py-4 font-medium text-slate-300">#<%= order.id %>
-                                        </td>
-                                        <td class="px-6 py-4 text-white font-medium">
-                                            <%= order.package_name || order.product_name || 'N/A' %>
-                                        </td>
-                                        <td class="px-6 py-4 text-slate-300 font-mono">
-                                            <%= new Intl.NumberFormat('vi-VN', { style: 'currency' , currency: 'VND'
-                                                }).format(order.amount) %>
-                                        </td>
-                                        <td class="px-6 py-4 text-slate-400">
-                                            <%= new Date(order.createdAt).toLocaleString('vi-VN') %>
+                                    <tr class="group hover:bg-slate-800/30 transition duration-200">
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center gap-3">
+                                                <div
+                                                    class="p-2 bg-slate-800 rounded-lg text-slate-400 group-hover:text-indigo-400 transition shrink-0">
+                                                    <i
+                                                        class="ri-box-3-line text-lg w-5 h-5 flex items-center justify-center"></i>
+                                                </div>
+                                                <div>
+                                                    <span class="font-mono text-xs font-bold text-slate-300">#<%=
+                                                            order.id %></span>
+                                                    <div class="text-[10px] text-slate-500 mt-0.5">
+                                                        <%= new Date(order.createdAt).toLocaleDateString('vi-VN') %>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </td>
                                         <td class="px-6 py-4">
+                                            <div class="font-bold text-white group-hover:text-indigo-200 transition">
+                                                <%= order.package_name || 'N/A' %>
+                                            </div>
+                                            <div class="text-xs text-slate-500 mt-0.5">
+                                                <%= order.product_name || 'Sản phẩm' %>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 text-center">
+                                            <% if (order.duration) { %>
+                                                <span
+                                                    class="px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-xs font-medium text-slate-300">
+                                                    <%= Math.round(order.duration / 30) %> Tháng
+                                                </span>
+                                                <% } else { %>
+                                                    <span class="text-slate-500 text-xs">-</span>
+                                                    <% } %>
+                                        </td>
+                                        <td class="px-6 py-4 text-center">
+                                            <span class="font-bold text-emerald-400 font-mono tracking-tight">
+                                                <%= new Intl.NumberFormat('vi-VN', { style: 'currency' , currency: 'VND'
+                                                    }).format(order.amount) %>
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 text-right">
                                             <% if (order.status==='completed' ) { %>
                                                 <span
-                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                                    class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-sm shadow-emerald-500/10">
+                                                    <i
+                                                        class="ri-check-line w-3.5 h-3.5 flex items-center justify-center"></i>
                                                     Hoàn thành
                                                 </span>
                                                 <% } else if (order.status==='pending' ) { %>
                                                     <span
-                                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 shadow-sm shadow-amber-500/10">
+                                                        <i
+                                                            class="ri-loader-4-line animate-spin w-3.5 h-3.5 flex items-center justify-center"></i>
                                                         Chờ xử lý
                                                     </span>
-                                                    <% } else { %>
+                                                    <% } else if (order.status==='cancelled' ) { %>
                                                         <span
-                                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-700 text-slate-300 border border-slate-600">
-                                                            <%= order.status %>
+                                                            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20 shadow-sm shadow-rose-500/10">
+                                                            <i
+                                                                class="ri-close-circle-line w-3.5 h-3.5 flex items-center justify-center"></i>
+                                                            Đã hủy
                                                         </span>
-                                                        <% } %>
+                                                        <% } else if (order.status==='expired' ) { %>
+                                                            <span
+                                                                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-slate-700/50 text-slate-400 border border-slate-600">
+                                                                <i
+                                                                    class="ri-time-line w-3.5 h-3.5 flex items-center justify-center"></i>
+                                                                Hết hạn
+                                                            </span>
+                                                            <% } else { %>
+                                                                <span
+                                                                    class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700">
+                                                                    <%= order.status %>
+                                                                </span>
+                                                                <% } %>
                                         </td>
                                     </tr>
                                     <% }); %>

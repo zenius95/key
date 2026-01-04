@@ -11,7 +11,7 @@ router.get('/admin', requireAuth, AdminController.getDashboard);
 router.get('/admin/activity-logs', requireAuth, AdminController.getActivityLogs);
 
 // Revenue Stats API
-router.get('/api/admin/revenue-stats', requireAuth, AdminController.getRevenueStats);
+router.get('/admin/revenue-stats', requireAuth, AdminController.getRevenueStats);
 
 // Settings
 router.get('/admin/settings', requireAuth, SettingsController.redirectSettings);

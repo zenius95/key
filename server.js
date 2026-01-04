@@ -21,11 +21,20 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Session Config
+const SequelizeStore = require('connect-session-sequelize')(session.Store);
+const sessionStore = new SequelizeStore({
+    db: db.sequelize,
+});
+
 app.use(session({
     secret: process.env.SESSION_SECRET || 'your_secret_key',
+    store: sessionStore,
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false } // Set to true if using HTTPS
+    cookie: {
+        secure: false, // Set to true if using HTTPS
+        maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+    }
 }));
 
 // Global Helpers (Optional: Make user available to all views)
@@ -39,6 +48,7 @@ app.use('/', routes);
 
 // Sync Database
 db.sequelize.sync().then(() => {
+    sessionStore.sync();
     console.log('Database synced successfully');
 
     app.listen(PORT, () => {
