@@ -207,6 +207,21 @@ const updateCategory = async (req, res) => {
     }
 };
 
+const deleteCategory = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const modulesCount = await db.Module.count({ where: { category_id: id } });
+        if (modulesCount > 0) {
+            return res.status(400).json({ success: false, message: 'Danh mục này đang chứa modules. Vui lòng chuyển hoặc xóa modules trước.' });
+        }
+        await db.Category.destroy({ where: { id } });
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Delete Category Error:', error);
+        res.status(500).json({ success: false, message: 'Lỗi khi xóa danh mục' });
+    }
+};
+
 const deleteBulkCategories = async (req, res) => {
     try {
         const { ids } = req.body;
@@ -250,6 +265,7 @@ module.exports = {
     getCategories,
     createCategory,
     updateCategory,
+    deleteCategory,
     deleteBulkCategories,
     getAllModulesAPI
 };

@@ -31,6 +31,7 @@ router.post('/admin/modules/delete-bulk', requireAuth, ModuleController.deleteBu
 router.get('/admin/categories', requireAuth, ModuleController.getCategories);
 router.post('/admin/categories', requireAuth, ModuleController.createCategory);
 router.post('/admin/categories/update/:id', requireAuth, ModuleController.updateCategory);
+router.delete('/admin/categories/:id', requireAuth, ModuleController.deleteCategory);
 router.post('/admin/categories/delete-bulk', requireAuth, ModuleController.deleteBulkCategories);
 
 module.exports = router;
