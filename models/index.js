@@ -33,6 +33,8 @@ db.Package = require('./Package')(sequelize, DataTypes);
 db.Order = require('./Order')(sequelize, DataTypes);
 db.ActivityLog = require('./ActivityLog')(sequelize, DataTypes);
 db.Setting = require('./Setting')(sequelize, DataTypes);
+db.Category = require('./Category')(sequelize, DataTypes);
+db.Module = require('./Module')(sequelize, DataTypes);
 
 // Associations
 db.User.hasMany(db.Order, { foreignKey: 'user_id', as: 'orders' });
@@ -43,5 +45,8 @@ db.Package.belongsTo(db.Product, { foreignKey: 'product_id', as: 'product' });
 
 db.User.hasMany(db.ActivityLog, { foreignKey: 'userId', as: 'activities' });
 db.ActivityLog.belongsTo(db.User, { foreignKey: 'userId', as: 'user' });
+
+db.Category.hasMany(db.Module, { foreignKey: 'category_id', as: 'modules' });
+db.Module.belongsTo(db.Category, { foreignKey: 'category_id', as: 'category' });
 
 module.exports = db;

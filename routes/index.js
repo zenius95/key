@@ -9,6 +9,7 @@ const userRoutes = require('./users');
 const productRoutes = require('./products');
 const orderRoutes = require('./orders');
 const cronRoutes = require('./cron');
+const apiRoutes = require('./api');
 
 const clientRoutes = require('./client');
 
@@ -19,6 +20,7 @@ router.use('/', userRoutes);
 router.use('/', productRoutes);
 router.use('/', orderRoutes);
 router.use('/', cronRoutes);
+router.use('/api', apiRoutes);
 router.use('/', clientRoutes);
 
 // Root Route - Handled by clientRoutes (which maps '/')

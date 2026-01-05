@@ -27,45 +27,67 @@
 
 <body class="bg-slate-950 text-slate-200 min-h-screen flex">
 
+    <!-- Mobile Overlay -->
+    <div id="sidebarOverlay" onclick="toggleSidebar()"
+        class="fixed inset-0 bg-slate-950/80 z-40 hidden backdrop-blur-sm transition-opacity opacity-0">
+    </div>
+
+    <!-- Mobile Header -->
+    <header
+        class="md:hidden fixed top-0 inset-x-0 h-16 bg-slate-900/90 backdrop-blur-xl border-b border-slate-800 z-30 flex items-center justify-between px-4">
+        <div class="flex items-center gap-3">
+            <div
+                class="bg-indigo-600 w-8 h-8 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                <i class="ri-flashlight-fill text-white text-lg"></i>
+            </div>
+            <span class="text-lg font-bold text-white tracking-tight">Client Portal</span>
+        </div>
+        <button onclick="toggleSidebar()"
+            class="p-2 text-slate-400 hover:text-white rounded-lg active:bg-slate-800 transition">
+            <i class="ri-menu-4-line text-2xl"></i>
+        </button>
+    </header>
+
     <!-- Sidebar -->
-    <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col fixed inset-y-0 z-50">
+    <aside id="mainSidebar"
+        class="w-64 md:w-24 2xl:w-64 bg-slate-900 border-r border-slate-800 flex flex-col fixed inset-y-0 z-50 transform -translate-x-full md:translate-x-0 transition-all duration-300 shadow-2xl md:shadow-none">
         <!-- Logo -->
         <!-- Logo -->
         <div class="h-16 flex items-center px-6 border-b border-slate-800">
             <div class="flex items-center gap-3">
                 <div
-                    class="bg-indigo-600 w-8 h-8 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                    class="bg-indigo-600 w-8 h-8 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/30 shrink-0">
                     <i class="ri-flashlight-fill text-white text-lg"></i>
                 </div>
-                <span class="text-lg font-bold text-white tracking-tight">Client Portal</span>
+                <span class="text-lg font-bold text-white tracking-tight md:hidden 2xl:block">Client Portal</span>
             </div>
         </div>
 
         <!-- Menu -->
-        <nav class="flex-1 px-4 py-6 space-y-1">
+        <nav class="flex-1 px-4 md:px-2 2xl:px-4 py-6 space-y-1">
             <a href="/"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 <%= (typeof activeTab !== 'undefined' && activeTab === 'dashboard') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' %>">
-                <i class="ri-dashboard-3-line text-lg"></i>
-                Tổng quan
+                class="flex 2xl:flex-row flex-row md:flex-col items-center gap-3 md:gap-1 px-4 md:px-0 2xl:px-4 py-3 text-sm md:text-[10px] 2xl:text-sm font-medium rounded-xl transition-all duration-200 justify-start md:justify-center 2xl:justify-start md:text-center <%= (typeof activeTab !== 'undefined' && activeTab === 'dashboard') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' %>">
+                <i class="ri-dashboard-3-line text-lg md:text-xl 2xl:text-lg"></i>
+                <span class="md:block">Tổng quan</span>
             </a>
 
             <!-- Future: Buy Package -->
             <a href="/deposit"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 <%= (typeof activeTab !== 'undefined' && activeTab === 'deposit') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' %>">
-                <i class="ri-wallet-3-line text-lg"></i>
-                Nạp tiền
+                class="flex 2xl:flex-row flex-row md:flex-col items-center gap-3 md:gap-1 px-4 md:px-0 2xl:px-4 py-3 text-sm md:text-[10px] 2xl:text-sm font-medium rounded-xl transition-all duration-200 justify-start md:justify-center 2xl:justify-start md:text-center <%= (typeof activeTab !== 'undefined' && activeTab === 'deposit') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' %>">
+                <i class="ri-wallet-3-line text-lg md:text-xl 2xl:text-lg"></i>
+                <span class="md:block">Nạp tiền</span>
             </a>
 
             <a href="/buy"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 <%= (typeof activeTab !== 'undefined' && activeTab === 'buy') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' %>">
-                <i class="ri-shopping-cart-2-line text-lg"></i>
-                Mua gói
+                class="flex 2xl:flex-row flex-row md:flex-col items-center gap-3 md:gap-1 px-4 md:px-0 2xl:px-4 py-3 text-sm md:text-[10px] 2xl:text-sm font-medium rounded-xl transition-all duration-200 justify-start md:justify-center 2xl:justify-start md:text-center <%= (typeof activeTab !== 'undefined' && activeTab === 'buy') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' %>">
+                <i class="ri-shopping-cart-2-line text-lg md:text-xl 2xl:text-lg"></i>
+                <span class="md:block">Mua gói</span>
             </a>
 
             <a href="/history"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 <%= (typeof activeTab !== 'undefined' && activeTab === 'history') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' %>">
-                <i class="ri-history-line text-lg"></i>
-                Lịch sử giao dịch
+                class="flex 2xl:flex-row flex-row md:flex-col items-center gap-3 md:gap-1 px-4 md:px-0 2xl:px-4 py-3 text-sm md:text-[10px] 2xl:text-sm font-medium rounded-xl transition-all duration-200 justify-start md:justify-center 2xl:justify-start md:text-center <%= (typeof activeTab !== 'undefined' && activeTab === 'history') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' %>">
+                <i class="ri-history-line text-lg md:text-xl 2xl:text-lg"></i>
+                <span class="md:block">Lịch sử</span>
             </a>
         </nav>
 
@@ -97,12 +119,12 @@
 
             <!-- User Toggle -->
             <button onclick="toggleUserDropdown()"
-                class="w-full bg-slate-900 hover:bg-slate-800 rounded-2xl p-3 flex items-center gap-3 transition group border border-slate-800 hover:border-slate-700 shadow-sm">
+                class="w-full bg-slate-900 hover:bg-slate-800 rounded-2xl p-3 md:px-0 2xl:p-3 flex items-center gap-3 md:justify-center 2xl:justify-start transition group border border-slate-800 hover:border-slate-700 shadow-sm">
                 <div
                     class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-md group-hover:shadow-indigo-500/20 transition shrink-0 ring-2 ring-slate-900 group-hover:ring-indigo-500/30">
                     <%= user.full_name.charAt(0).toUpperCase() %>
                 </div>
-                <div class="flex-1 text-left min-w-0">
+                <div class="flex-1 text-left min-w-0 md:hidden 2xl:block">
                     <p
                         class="text-sm font-bold text-white truncate mb-0.5 group-hover:text-indigo-200 transition-colors">
                         <%= user.full_name %>
@@ -116,7 +138,7 @@
                     </div>
                 </div>
                 <i id="dropdownArrow"
-                    class="ri-arrow-down-s-line text-slate-500 group-hover:text-white transition transform duration-200 text-lg"></i>
+                    class="ri-arrow-down-s-line text-slate-500 group-hover:text-white transition transform duration-200 text-lg md:hidden 2xl:block"></i>
             </button>
 
 
@@ -160,7 +182,7 @@
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 ml-64 py-20 overflow-y-auto h-screen">
+    <main class="flex-1 md:ml-24 2xl:ml-64 ml-0 py-20 overflow-y-auto h-screen relative z-10">
         <!-- Header -->
 
         <!-- Body -->
@@ -168,6 +190,32 @@
 
     </main>
 
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('mainSidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+
+            // Toggle Translate
+            if (sidebar.classList.contains('-translate-x-full')) {
+                // OPEN
+                sidebar.classList.remove('-translate-x-full');
+                // Show overlay
+                overlay.classList.remove('hidden');
+                // Small delay for fade in
+                requestAnimationFrame(() => {
+                    overlay.classList.remove('opacity-0');
+                });
+            } else {
+                // CLOSE
+                sidebar.classList.add('-translate-x-full');
+                // Fade out overlay
+                overlay.classList.add('opacity-0');
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                }, 300);
+            }
+        }
+    </script>
 </body>
 
 </html>

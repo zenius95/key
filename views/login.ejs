@@ -53,38 +53,57 @@
                     </div>
                     <% } %>
 
-                        <div>
-                            <label class="block text-sm font-medium text-slate-300 mb-1.5">Địa chỉ Email</label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <i class="ri-mail-line text-slate-500 text-lg"></i>
-                                </div>
-                                <input type="email" name="email" required
-                                    class="block w-full pl-10 bg-slate-950 border border-slate-700 rounded-lg py-2.5 text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition sm:text-sm"
-                                    placeholder="name@example.com">
+                        <% if (typeof success !=='undefined' && success) { %>
+                            <div
+                                class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm p-3 rounded-lg text-center flex items-center justify-center gap-2">
+                                <i class="ri-checkbox-circle-fill text-lg"></i>
+                                <%= success %>
                             </div>
-                        </div>
+                            <% } %>
 
-                        <div>
-                            <label class="block text-sm font-medium text-slate-300 mb-1.5">Mật khẩu</label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <i class="ri-lock-password-line text-slate-500 text-lg"></i>
-                                </div>
-                                <input type="password" name="password" required
-                                    class="block w-full pl-10 bg-slate-950 border border-slate-700 rounded-lg py-2.5 text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition sm:text-sm"
-                                    placeholder="••••••••">
-                            </div>
-                        </div>
+                                <% if (typeof noRedirect !=='undefined' && noRedirect) { %>
+                                    <input type="hidden" name="no_redirect" value="true">
+                                    <% } %>
 
-                        <button type="submit"
-                            class="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-xl shadow-lg shadow-indigo-500/20 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:ring-offset-slate-900 transition">
-                            Đăng nhập
-                        </button>
+                                        <div>
+                                            <label class="block text-sm font-medium text-slate-300 mb-1.5">Địa chỉ
+                                                Email</label>
+                                            <div class="relative">
+                                                <div
+                                                    class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                    <i class="ri-mail-line text-slate-500 text-lg"></i>
+                                                </div>
+                                                <input type="email" name="email" required
+                                                    class="block w-full pl-10 bg-slate-950 border border-slate-700 rounded-lg py-2.5 text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition sm:text-sm"
+                                                    placeholder="name@example.com">
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label class="block text-sm font-medium text-slate-300 mb-1.5">Mật
+                                                khẩu</label>
+                                            <div class="relative">
+                                                <div
+                                                    class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                    <i class="ri-lock-password-line text-slate-500 text-lg"></i>
+                                                </div>
+                                                <input type="password" name="password" required
+                                                    class="block w-full pl-10 bg-slate-950 border border-slate-700 rounded-lg py-2.5 text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition sm:text-sm"
+                                                    placeholder="••••••••">
+                                            </div>
+                                        </div>
+
+                                        <button type="submit"
+                                            class="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-xl shadow-lg shadow-indigo-500/20 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:ring-offset-slate-900 transition">
+                                            Đăng nhập
+                                        </button>
             </form>
         </div>
         <div class="px-8 py-4 bg-slate-950/50 border-t border-slate-800 text-center">
-            <p class="text-xs text-slate-500">License Manager Pro &copy; 2024</p>
+            <p class="text-sm text-slate-400">Chưa có tài khoản? <a
+                    href="/register<%= (typeof noRedirect !== 'undefined' && noRedirect) ? '?no_redirect=true' : '' %>"
+                    class="text-indigo-400 font-bold hover:text-indigo-300 transition">Đăng ký ngay</a></p>
+            <p class="text-xs text-slate-600 mt-2">License Manager Pro &copy; 2024</p>
         </div>
     </div>
 

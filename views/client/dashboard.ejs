@@ -1,4 +1,4 @@
-<div class="max-w-7xl mx-auto -mt-6">
+<div class="max-w-7xl mx-auto -mt-6 px-4 2xl:px-0">
     <!-- Cover Profil -->
     <div class="relative h-60 rounded-3xl overflow-hidden shadow-2xl group">
         <div class="absolute inset-0 bg-gradient-to-r from-violet-600 via-indigo-600 to-purple-600 animate-gradient-x">
@@ -17,8 +17,8 @@
     </div>
 
     <!-- User Info Section -->
-    <div class="px-6 md:px-10 pb-8 relative z-10 -mt-28">
-        <div class="flex flex-col md:flex-row items-end md:items-center gap-6">
+    <div class="px-0 md:px-10 pb-8 relative z-10 -mt-20 md:-mt-28">
+        <div class="flex flex-col md:flex-row items-center md:items-end gap-4 md:gap-6">
             <!-- Avatar -->
             <div class="relative shrink-0">
                 <div class="w-32 h-32 rounded-full bg-slate-900 p-1.5 shadow-2xl">
@@ -48,8 +48,8 @@
             <!-- Name & Balance -->
             <div class="flex-1 mb-2">
                 <div class="flex flex-col gap-2">
-                    <div class="flex items-center gap-3">
-                        <h1 class="text-2xl font-bold text-white tracking-tight">
+                    <div class="flex items-center gap-3 justify-center md:justify-start">
+                        <h1 class="text-2xl font-bold text-white tracking-tight text-center md:text-left">
                             <%= user.full_name %>
                         </h1>
                         <% if (user.role==='admin' ) { %>
@@ -59,7 +59,7 @@
                     </div>
 
                     <!-- Balance moved here -->
-                    <div class="flex items-center gap-3">
+                    <div class="hidden md:flex items-center gap-3">
                         <div class="text-1xl font-bold text-emerald-400 font-mono tracking-tight"
                             title="Số dư khả dụng">
                             <%= new Intl.NumberFormat('vi-VN', { style: 'currency' , currency: 'VND'
@@ -72,7 +72,7 @@
     </div>
 
     <!-- Main Content Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-8">
 
         <!-- Left Column: Personal Info & Stats -->
         <div class="">
@@ -188,7 +188,7 @@
         </div>
 
         <!-- Right Column: Active Services -->
-        <div class="lg:col-span-2 space-y-6">
+        <div class="2xl:col-span-2 space-y-6">
             <!-- Section Header -->
             <div class="flex items-center justify-between">
                 <h3 class="text-xl font-bold text-white flex items-center gap-2">

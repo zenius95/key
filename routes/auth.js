@@ -6,6 +6,8 @@ const { checkSetup, requireAuth } = require('../middlewares/authMiddleware');
 
 router.get('/login', AuthController.getLogin);
 router.post('/login', AuthController.postLogin);
+router.get('/register', AuthController.getRegister);
+router.post('/register', AuthController.postRegister);
 router.get('/logout', AuthController.logout);
 router.get('/api/check', requireAuth, AuthController.checkLicense);
 router.get('/api/me', requireAuth, AuthController.getUserInfo);

@@ -61,6 +61,10 @@ function generateUserDbKey() {
     return crypto.randomBytes(32).toString('hex');
 }
 
+function generateLicenseKey() {
+    return crypto.randomUUID();
+}
+
 function encryptKeyForStorage(plainKey) {
     if (!plainKey) return null;
     const iv = crypto.randomBytes(16);
@@ -113,4 +117,4 @@ function encryptWithPrivateKey(data) {
     }
 }
 
-module.exports = { signData, generateUserDbKey, encryptKeyForStorage, decryptKeyFromStorage, encryptWithPrivateKey };
+module.exports = { signData, generateUserDbKey, encryptKeyForStorage, decryptKeyFromStorage, encryptWithPrivateKey, generateLicenseKey };

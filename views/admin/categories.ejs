@@ -1,0 +1,234 @@
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-white tracking-tight">Quản lý Danh mục</h1>
+            <p class="text-slate-400 mt-1">Quản lý các danh mục module.</p>
+        </div>
+        <div class="flex gap-3">
+            <button onclick="openCategoryModal()"
+                class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-xl transition flex items-center gap-2 shadow-lg shadow-indigo-500/20">
+                <i class="ri-add-line"></i>
+                Thêm danh mục
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats Row Removed -->
+
+    <!-- Toolbar -->
+    <div
+        class="flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-900/50 p-1.5 rounded-2xl border border-slate-800/50 backdrop-blur-sm shadow-sm">
+        <div class="relative w-full sm:flex-1">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i class="ri-search-line text-slate-500 text-lg"></i>
+            </div>
+            <input type="text" id="searchInput" placeholder="Tìm kiếm danh mục..." value="<%= search %>"
+                class="bg-transparent border-none text-slate-200 text-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 block w-full pl-10 p-2.5 placeholder-slate-500 transition duration-200"
+                onkeydown="if(event.key === 'Enter') applyFilters()">
+        </div>
+
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+            <button onclick="applyFilters()"
+                class="bg-indigo-600 hover:bg-indigo-500 text-white p-2.5 rounded-xl transition shadow-lg shadow-indigo-500/20 flex items-center justify-center aspect-square">
+                <i class="ri-search-line text-lg w-5 h-5 flex items-center justify-center"></i>
+            </button>
+
+            <button id="bulkDeleteBtn" onclick="deleteSelected()" style="display: none;"
+                class="bg-rose-600 hover:bg-rose-500 text-white px-4 py-2.5 rounded-xl transition shadow-lg shadow-rose-500/20 flex items-center justify-center gap-2 text-sm font-medium">
+                <i class="ri-delete-bin-line"></i>
+                <span>Xóa (<span id="selectedCount">0</span>)</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead
+                    class="bg-slate-850 text-[10px] uppercase text-slate-400 font-semibold border-b border-slate-800">
+                    <tr>
+                        <th class="px-6 py-4 w-[5%]">
+                            <input type="checkbox" id="selectAll" onclick="toggleSelectAll()"
+                                class="rounded bg-slate-800 border-slate-700 text-indigo-600 focus:ring-indigo-500 cursor-pointer w-4 h-4">
+                        </th>
+                        <th class="px-6 py-4 tracking-wider">Icon</th>
+                        <th class="px-6 py-4 tracking-wider">Tên danh mục</th>
+                        <th class="px-6 py-4 tracking-wider">Slug</th>
+                        <th class="px-6 py-4 tracking-wider">Số module</th>
+                        <th class="px-6 py-4 tracking-wider text-right">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800 text-sm">
+                    <% if (categories && categories.length> 0) { %>
+                        <% categories.forEach((cat, index)=> { %>
+                            <tr class="hover:bg-slate-800/50 transition">
+                                <td class="px-6 py-4">
+                                    <input type="checkbox" value="<%= cat.id %>" onclick="handleRowSelect(this)"
+                                        class="row-checkbox rounded bg-slate-800 border-slate-700 text-indigo-600 focus:ring-indigo-500 cursor-pointer w-4 h-4">
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div
+                                        class="w-10 h-10 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-indigo-400">
+                                        <i class="<%= cat.icon || 'ri-folder-line' %> text-lg"></i>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 font-medium text-white">
+                                    <%= cat.name %>
+                                </td>
+                                <td class="px-6 py-4 text-slate-400 font-mono text-xs">
+                                    <%= cat.slug %>
+                                </td>
+                                <td class="px-6 py-4 text-slate-400">
+                                    <%= cat.modules ? cat.modules.length : 0 %>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <button
+                                        onclick="openEditCategoryModal('<%= cat.id %>', '<%= cat.name %>', '<%= cat.icon || '' %>')"
+                                        class="p-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition"
+                                        title="Chỉnh sửa">
+                                        <i class="ri-edit-line"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <% }); %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="5" class="px-6 py-12 text-center text-slate-500">Chưa có danh mục
+                                            nào.</td>
+                                    </tr>
+                                    <% } %>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <% if (totalPages> 1) { %>
+            <%- include('../partials/pagination', { path: '/admin/categories' , query: query, currentPage: currentPage,
+                totalPages: totalPages }) %>
+                <% } %>
+    </div>
+</div>
+
+<!-- Category Modal (Create/Edit) -->
+<div id="categoryModal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" onclick="closeCategoryModal()"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-6 relative">
+            <button onclick="closeCategoryModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <i class="ri-close-line text-xl"></i>
+            </button>
+            <h3 id="modalTitle" class="text-xl font-bold text-white mb-6">Thêm danh mục mới</h3>
+            <form id="categoryForm" action="/admin/categories" method="POST">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1.5">Tên danh mục</label>
+                        <input type="text" name="name" id="catName" required
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
+                            placeholder="Ví dụ: Social Media">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1.5">Icon (Remix Icon)</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i id="catIconPreview" class="ri-folder-line text-slate-500"></i>
+                            </div>
+                            <input type="text" name="icon" id="catIcon"
+                                class="w-full pl-10 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
+                                placeholder="ri-facebook-fill"
+                                oninput="document.getElementById('catIconPreview').className = this.value || 'ri-folder-line text-slate-500'">
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end gap-3">
+                    <button type="button" onclick="closeCategoryModal()"
+                        class="px-4 py-2 text-slate-400 hover:text-white font-medium">Hủy</button>
+                    <button type="submit"
+                        class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-medium transition">Lưu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openCategoryModal() {
+        document.getElementById('categoryModal').classList.remove('hidden');
+        document.getElementById('modalTitle').innerText = 'Thêm danh mục mới';
+        document.getElementById('categoryForm').action = '/admin/categories';
+        document.getElementById('catName').value = '';
+        document.getElementById('catIcon').value = '';
+        document.getElementById('catIconPreview').className = 'ri-folder-line text-slate-500';
+    }
+
+    function openEditCategoryModal(id, name, icon) {
+        document.getElementById('categoryModal').classList.remove('hidden');
+        document.getElementById('modalTitle').innerText = 'Chỉnh sửa danh mục';
+        document.getElementById('categoryForm').action = '/admin/categories/update/' + id;
+        document.getElementById('catName').value = name;
+        document.getElementById('catIcon').value = icon;
+        document.getElementById('catIconPreview').className = icon || 'ri-folder-line text-slate-500';
+    }
+
+    function closeCategoryModal() {
+        document.getElementById('categoryModal').classList.add('hidden');
+    }
+
+    // Bulk Actions Logic (Similar to core)
+    function toggleSelectAll() {
+        const selectAll = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.row-checkbox');
+        checkboxes.forEach(cb => cb.checked = selectAll.checked);
+        updateBulkButton();
+    }
+
+    function handleRowSelect(checkbox) {
+        updateBulkButton();
+    }
+
+    function updateBulkButton() {
+        const selected = document.querySelectorAll('.row-checkbox:checked').length;
+        const btn = document.getElementById('bulkDeleteBtn');
+        const countSpan = document.getElementById('selectedCount');
+
+        if (selected > 0) {
+            btn.style.display = 'flex';
+            countSpan.innerText = selected;
+        } else {
+            btn.style.display = 'none';
+        }
+    }
+
+    async function deleteSelected() {
+        if (!confirm('Bạn có chắc chắn muốn xóa các mục đã chọn?')) return;
+
+        const selected = Array.from(document.querySelectorAll('.row-checkbox:checked')).map(cb => cb.value);
+
+        try {
+            const res = await fetch('/admin/categories/delete-bulk', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ids: selected })
+            });
+            const data = await res.json();
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Lỗi: ' + data.message);
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Có lỗi xảy ra');
+        }
+    }
+
+    function applyFilters() {
+        const search = document.getElementById('searchInput').value;
+        const url = new URL(window.location.href);
+        url.searchParams.set('page', 1);
+        if (search) url.searchParams.set('search', search);
+        else url.searchParams.delete('search');
+        window.location.href = url.toString();
+    }
+</script>

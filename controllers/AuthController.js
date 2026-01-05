@@ -1,18 +1,21 @@
 const db = require('../models');
-const { comparePassword } = require('../utils/auth');
+const { comparePassword, hashPassword } = require('../utils/auth');
 const logActivity = require('../utils/logActivity'); // We will need to extract logActivity too or import it from somewhere. 
 // CHECK: server.js had logActivity defined inline. I need to extract it to utils/logActivity.js first or duplicating it here.
 // Best practice: Extract logActivity to utils.
 
-const { signData, generateUserDbKey, encryptKeyForStorage, decryptKeyFromStorage, encryptWithPrivateKey } = require('../utils/crypto');
+const { signData, generateUserDbKey, encryptKeyForStorage, decryptKeyFromStorage, encryptWithPrivateKey, generateLicenseKey } = require('../utils/crypto');
 const { Op } = require('sequelize');
 
 const getLogin = (req, res) => {
     if (req.session.userId) {
-        return res.redirect('/admin');
+        if (req.query.no_redirect) {
+            return res.render('login', { error: null, success: 'Bạn đã đăng nhập', layout: false, noRedirect: true });
+        }
+        return res.redirect((req.session.role === 'user') ? '/' : '/admin');
     }
     // Disable layout for login
-    res.render('login', { error: null, layout: false });
+    res.render('login', { error: null, success: null, layout: false, noRedirect: req.query.no_redirect });
 };
 
 const postLogin = async (req, res) => {
@@ -20,12 +23,12 @@ const postLogin = async (req, res) => {
     try {
         const user = await db.User.findOne({ where: { email } });
         if (!user) {
-            return res.render('login', { error: 'Invalid email or password', layout: false });
+            return res.render('login', { error: 'Invalid email or password', success: null, layout: false, noRedirect: req.body.no_redirect });
         }
 
         const isMatch = await comparePassword(password, user.password);
         if (!isMatch) {
-            return res.render('login', { error: 'Invalid email or password', layout: false });
+            return res.render('login', { error: 'Invalid email or password', success: null, layout: false, noRedirect: req.body.no_redirect });
         }
 
         // if (user.role !== 'admin') {
@@ -44,12 +47,69 @@ const postLogin = async (req, res) => {
         await logActivity(user.id, 'LOGIN', 0, null, req);
 
         if (user.role === 'user') {
+            if (req.body.no_redirect) {
+                return res.render('login', { error: null, success: 'Đăng nhập thành công', layout: false, noRedirect: true });
+            }
             return res.redirect('/');
+        }
+        if (req.body.no_redirect) {
+            return res.render('login', { error: null, success: 'Đăng nhập thành công', layout: false, noRedirect: true });
         }
         res.redirect('/admin');
     } catch (error) {
         console.error(error);
-        res.render('login', { error: 'Server error', layout: false });
+        res.render('login', { error: 'Server error', success: null, layout: false, noRedirect: req.body.no_redirect });
+    }
+};
+
+const getRegister = (req, res) => {
+    if (req.session.userId) {
+        return res.redirect('/');
+    }
+    res.render('register', { error: null, layout: false, noRedirect: req.query.no_redirect });
+};
+
+const postRegister = async (req, res) => {
+    const { email, password, confirm_password, full_name, phone } = req.body;
+    try {
+        // Validation
+        if (!email || !password || !confirm_password) {
+            return res.render('register', { error: 'Vui lòng nhập Email, Mật khẩu và Nhập lại mật khẩu', layout: false, noRedirect: req.body.no_redirect });
+        }
+
+        if (password !== confirm_password) {
+            return res.render('register', { error: 'Mật khẩu nhập lại không khớp', layout: false, noRedirect: req.body.no_redirect });
+        }
+
+        const existingUser = await db.User.findOne({ where: { email } });
+        if (existingUser) {
+            return res.render('register', { error: 'Email đã tồn tại trong hệ thống', layout: false, noRedirect: req.body.no_redirect });
+        }
+
+        const hashedPassword = await hashPassword(password);
+
+        // Generate Keys
+        const plainDbKey = generateUserDbKey();
+        const encryptedDbKey = encryptKeyForStorage(plainDbKey);
+        const licenseKey = generateLicenseKey();
+
+        await db.User.create({
+            email,
+            password: hashedPassword,
+            full_name: full_name || null,
+            phone: phone || null,
+            role: 'user',
+            balance: 0,
+            license_key: licenseKey,
+            db_secret_key: encryptedDbKey
+        });
+
+        // Use req.body.no_redirect to persist value to login view
+        res.render('login', { error: null, success: 'Đăng ký thành công!.', layout: false, noRedirect: req.body.no_redirect });
+
+    } catch (error) {
+        console.error('Register Error:', error);
+        res.render('register', { error: 'Lỗi hệ thống, vui lòng thử lại sau', layout: false, noRedirect: req.body.no_redirect });
     }
 };
 
@@ -191,4 +251,4 @@ const getUserInfo = async (req, res) => {
     }
 };
 
-module.exports = { getLogin, postLogin, logout, checkLicense, getUserInfo };
+module.exports = { getLogin, postLogin, logout, checkLicense, getUserInfo, getRegister, postRegister };

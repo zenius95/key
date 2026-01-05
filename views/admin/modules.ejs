@@ -1,0 +1,389 @@
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-white tracking-tight">Quản lý Modules</h1>
+            <p class="text-slate-400 mt-1">Quản lý các modules và danh mục script.</p>
+        </div>
+        <div class="flex gap-3">
+            <a href="/admin/categories"
+                class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-sm font-medium rounded-xl transition flex items-center gap-2 border border-slate-700">
+                <i class="ri-folder-settings-line"></i>
+                Quản lý Danh mục
+            </a>
+            <button onclick="openModuleModal()"
+                class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-xl transition flex items-center gap-2 shadow-lg shadow-indigo-500/20">
+                <i class="ri-add-line"></i>
+                Thêm Module
+            </button>
+        </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div
+        class="flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-900/50 p-1.5 rounded-2xl border border-slate-800/50 backdrop-blur-sm shadow-sm mb-6">
+        <div class="relative w-full sm:flex-1">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i class="ri-search-line text-slate-500 text-lg"></i>
+            </div>
+            <input type="text" id="searchInput" placeholder="Tìm kiếm module..."
+                value="<%= typeof search !== 'undefined' ? search : '' %>"
+                class="bg-transparent border-none text-slate-200 text-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 block w-full pl-10 p-2.5 placeholder-slate-500 transition duration-200"
+                onkeydown="if(event.key === 'Enter') applyFilters()">
+        </div>
+
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+            <!-- Category Filter -->
+            <div class="flex items-center gap-2 bg-slate-800/50 rounded-xl px-2 border border-slate-700/50">
+                <div class="pointer-events-none flex items-center pl-2">
+                    <i class="ri-filter-3-line text-slate-400"></i>
+                </div>
+                <select id="categoryFilter" onchange="applyFilters()"
+                    class="bg-transparent border-none text-slate-300 text-sm focus:outline-none focus:ring-0 p-2.5 w-full sm:w-auto cursor-pointer font-medium outline-none">
+                    <option value="all" class="bg-slate-950">Tất cả danh mục</option>
+                    <% categories.forEach(cat=> { %>
+                        <option value="<%= cat.id %>" class="bg-slate-950" <%=(typeof categoryId !=='undefined' &&
+                            categoryId==cat.id) ? 'selected' : '' %>><%= cat.name %>
+                        </option>
+                        <% }); %>
+                </select>
+            </div>
+
+            <button onclick="applyFilters()"
+                class="bg-indigo-600 hover:bg-indigo-500 text-white p-2.5 rounded-xl transition shadow-lg shadow-indigo-500/20 flex items-center justify-center aspect-square">
+                <i class="ri-search-line text-lg w-5 h-5 flex items-center justify-center"></i>
+            </button>
+
+            <button id="bulkDeleteBtn" onclick="deleteSelected()" style="display: none;"
+                class="bg-rose-600 hover:bg-rose-500 text-white px-4 py-2.5 rounded-xl transition shadow-lg shadow-rose-500/20 flex items-center justify-center gap-2 text-sm font-medium">
+                <i class="ri-delete-bin-line"></i>
+                <span>Xóa (<span id="selectedCount">0</span>)</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Modules List -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead
+                    class="bg-slate-850 text-[10px] uppercase text-slate-400 font-semibold border-b border-slate-800">
+                    <tr>
+                        <th class="p-4 w-[5%]">
+                            <input type="checkbox" id="selectAll" onclick="toggleSelectAll()"
+                                class="rounded bg-slate-800 border-slate-700 text-indigo-600 focus:ring-indigo-500 cursor-pointer w-4 h-4">
+                        </th>
+                        <th class="p-4 font-medium w-16">Icon</th>
+                        <th class="p-4 font-medium">Tên Module</th>
+                        <th class="p-4 font-medium">Danh mục</th>
+                        <th class="p-4 font-medium">Mô tả</th>
+                        <th class="p-4 font-medium w-24 text-center">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800 text-sm">
+                    <% if (modules && modules.length> 0) { %>
+                        <% modules.forEach(module=> { %>
+                            <tr class="hover:bg-slate-800/50 transition group">
+                                <td class="p-4">
+                                    <input type="checkbox" value="<%= module.id %>" onclick="handleRowSelect()"
+                                        class="row-checkbox rounded bg-slate-800 border-slate-700 text-indigo-600 focus:ring-indigo-500 cursor-pointer w-4 h-4">
+                                </td>
+                                <td class="p-4">
+                                    <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg"
+                                        style="background-color: <%= module.color %>20; color: <%= module.color %>; border: 1px solid <%= module.color %>40;">
+                                        <i class="<%= module.icon || 'ri-code-line' %>"></i>
+                                    </div>
+                                </td>
+                                <td class="p-4">
+                                    <div class="font-medium text-white">
+                                        <%= module.name %>
+                                    </div>
+                                </td>
+                                <td class="p-4">
+                                    <span
+                                        class="px-2.5 py-1 rounded-md text-xs font-medium bg-slate-800 text-slate-300 border border-slate-700">
+                                        <%= module.category ? module.category.name : 'Chưa phân loại' %>
+                                    </span>
+                                </td>
+                                <td class="p-4 text-slate-400 max-w-xs truncate" title="<%= module.description %>">
+                                    <%= module.description || 'Không có mô tả' %>
+                                </td>
+                                <td class="p-4">
+                                    <div
+                                        class="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button onclick="editModule('<%= JSON.stringify(module) %>')"
+                                            class="p-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition"
+                                            title="Chỉnh sửa">
+                                            <i class="ri-edit-line"></i>
+                                        </button>
+                                        <button onclick="deleteModule('<%= module.id %>')"
+                                            class="p-2 text-rose-400 hover:text-white hover:bg-rose-600 rounded-lg transition"
+                                            title="Xóa">
+                                            <i class="ri-delete-bin-line"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <% }); %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="6" class="p-8 text-center text-slate-500">
+                                            <div class="flex flex-col items-center gap-2">
+                                                <i class="ri-inbox-line text-3xl opacity-50"></i>
+                                                <span>Chưa có module nào. Hãy tạo mới!</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <% } %>
+                </tbody>
+            </table>
+
+            <!-- Pagination -->
+            <% if (typeof totalPages !=='undefined' && totalPages> 1) { %>
+                <%- include('../partials/pagination', { path: '/admin/modules' , query: query, currentPage: currentPage,
+                    totalPages: totalPages }) %>
+                    <% } %>
+
+        </div>
+    </div>
+</div>
+
+<!-- Module Modal -->
+<div id="moduleModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+    <div class="min-h-screen px-4 text-center">
+        <div class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm transition-opacity" onclick="closeModuleModal()">
+        </div>
+        <span class="inline-block h-screen align-middle" aria-hidden="true">&#8203;</span>
+        <div
+            class="inline-block w-full max-w-2xl p-6 my-8 text-left align-middle bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl transform transition-all relative">
+            <button onclick="closeModuleModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white z-10">
+                <i class="ri-close-line text-xl"></i>
+            </button>
+            <h3 id="modalTitle" class="text-xl font-bold text-white mb-6">Thêm Module mới</h3>
+
+            <form id="moduleForm" action="/admin/modules" method="POST" class="space-y-5">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1.5">Tên Module</label>
+                        <input type="text" name="name" id="moduleName" required
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
+                            placeholder="Ví dụ: Facebook Auto">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1.5">Danh mục</label>
+                        <select name="category_id" id="categoryIdSelector"
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition">
+                            <option value="">-- Chọn danh mục --</option>
+                            <% categories.forEach(cat=> { %>
+                                <option value="<%= cat.id %>">
+                                    <%= cat.name %>
+                                </option>
+                                <% }); %>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1.5">Icon (Remix Icon Class)</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i id="iconPreview" class="ri-code-line text-slate-500"></i>
+                            </div>
+                            <input type="text" name="icon" id="moduleIcon"
+                                class="w-full pl-10 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
+                                placeholder="ri-facebook-fill" oninput="updateIconPreview(this.value)">
+                        </div>
+                    </div>
+                    <label class="block text-sm font-medium text-slate-400 mb-1.5">Màu sắc</label>
+                    <input type="hidden" name="color" id="moduleColor" value="#4F46E5">
+                    <div class="grid grid-cols-5 gap-2" id="colorPalette">
+                        <!-- Colors generated by JS -->
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-400 mb-1.5">Mô tả ngắn</label>
+                    <textarea name="description" id="moduleDescription" rows="2"
+                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
+                        placeholder="Mô tả chức năng module..."></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-400 mb-1.5">Script (Javascript)</label>
+                    <textarea name="script" id="moduleScript" rows="10"
+                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-300 font-mono text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
+                        placeholder="// Viết code script module tại đây..."></textarea>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4 border-t border-slate-800">
+                    <button type="button" onclick="closeModuleModal()"
+                        class="px-4 py-2 text-slate-400 hover:text-white font-medium">Hủy</button>
+                    <button type="submit"
+                        class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-medium transition shadow-lg shadow-indigo-500/20">Lưu
+                        thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateIconPreview(val) {
+        document.getElementById('iconPreview').className = val || 'ri-code-line text-slate-500';
+    }
+
+    const presetColors = [
+        '#ef4444', // Red
+        '#f97316', // Orange
+        '#eab308', // Yellow
+        '#22c55e', // Green
+        '#06b6d4', // Cyan
+        '#3b82f6', // Blue
+        '#6366f1', // Indigo
+        '#a855f7', // Purple
+        '#ec4899', // Pink
+        '#64748b'  // Slate
+    ];
+
+    function initColorPalette() {
+        const container = document.getElementById('colorPalette');
+        container.innerHTML = '';
+        presetColors.forEach(color => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = `w-full aspect-square rounded-lg border-2 border-transparent hover:scale-110 transition relative`;
+            btn.style.backgroundColor = color;
+            btn.onclick = () => selectColor(color);
+            if (document.getElementById('moduleColor').value === color) {
+                btn.classList.add('border-white', 'ring-2', 'ring-white/20');
+            }
+            container.appendChild(btn);
+        });
+    }
+
+    function selectColor(color) {
+        document.getElementById('moduleColor').value = color;
+        initColorPalette(); // Re-render to update active state
+    }
+
+    function openModuleModal() {
+        document.getElementById('moduleModal').classList.remove('hidden');
+        document.getElementById('moduleForm').action = '/admin/modules';
+        document.getElementById('modalTitle').innerText = 'Thêm Module mới';
+        document.getElementById('moduleForm').reset();
+        updateIconPreview('');
+        selectColor('#6366f1'); // Default Indigo
+        initColorPalette();
+    }
+
+    function closeModuleModal() {
+        document.getElementById('moduleModal').classList.add('hidden');
+    }
+
+    function editModule(moduleStr) {
+        // Parse module data (Need to be careful with quotes in JSON stringify)
+        // In real app, fetch details via API is safer, but here we passed JSON.
+        // EJS JSON.stringify might escape characters, let's trying parse.
+        try {
+            const module = JSON.parse(moduleStr);
+            console.log(module);
+
+            document.getElementById('moduleModal').classList.remove('hidden');
+            const form = document.getElementById('moduleForm');
+            form.action = '/admin/modules/update/' + module.id;
+            document.getElementById('modalTitle').innerText = 'Chỉnh sửa Module';
+
+            document.getElementById('moduleName').value = module.name;
+            document.getElementById('categoryIdSelector').value = module.category_id || '';
+            document.getElementById('moduleIcon').value = module.icon || '';
+            updateIconPreview(module.icon);
+            selectColor(module.color || '#6366f1');
+            initColorPalette();
+            document.getElementById('moduleDescription').value = module.description || '';
+            document.getElementById('moduleScript').value = module.script || '';
+
+        } catch (e) {
+            console.error(e);
+            alert('Không thể load dữ liệu module');
+        }
+    }
+
+    async function deleteModule(id) {
+        if (!confirm('Bạn có chắc chắn muốn xóa module này?')) return;
+
+        try {
+            const res = await fetch('/admin/modules/' + id, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Lỗi: ' + data.message);
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Có lỗi xảy ra');
+        }
+    }
+    function toggleSelectAll() {
+        const selectAll = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.row-checkbox');
+        checkboxes.forEach(cb => cb.checked = selectAll.checked);
+        updateBulkButton();
+    }
+
+    function handleRowSelect() {
+        updateBulkButton();
+    }
+
+    function updateBulkButton() {
+        const selected = document.querySelectorAll('.row-checkbox:checked').length;
+        const btn = document.getElementById('bulkDeleteBtn');
+        const countSpan = document.getElementById('selectedCount');
+
+        if (selected > 0) {
+            btn.style.display = 'flex';
+            countSpan.innerText = selected;
+        } else {
+            btn.style.display = 'none';
+        }
+    }
+
+    async function deleteSelected() {
+        if (!confirm('Bạn có chắc chắn muốn xóa các modules đã chọn?')) return;
+
+        const selected = Array.from(document.querySelectorAll('.row-checkbox:checked')).map(cb => cb.value);
+
+        try {
+            const res = await fetch('/admin/modules/delete-bulk', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ids: selected })
+            });
+            const data = await res.json();
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Lỗi: ' + data.message);
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Có lỗi xảy ra');
+        }
+    }
+
+    function applyFilters() {
+        const search = document.getElementById('searchInput').value;
+        const category = document.getElementById('categoryFilter').value;
+        const url = new URL(window.location.href);
+        url.searchParams.set('page', 1);
+
+        if (search) url.searchParams.set('search', search);
+        else url.searchParams.delete('search');
+
+        if (category && category !== 'all') url.searchParams.set('category_id', category);
+        else url.searchParams.delete('category_id');
+
+        window.location.href = url.toString();
+    }
+</script>
