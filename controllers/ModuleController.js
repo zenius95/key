@@ -1,6 +1,8 @@
 const db = require('../models');
 
 const { Op } = require('sequelize');
+const JavaScriptObfuscator = require('javascript-obfuscator');
+const crypto = require('crypto');
 
 const getModules = async (req, res) => {
     try {
@@ -99,12 +101,35 @@ const createModule = async (req, res) => {
             finalCategoryId = newCat.id;
         }
 
+        let protectedContent = null;
+        if (script) {
+            try {
+                const obfuscationResult = JavaScriptObfuscator.obfuscate(script, {
+                    compact: true,
+                    controlFlowFlattening: true,
+                    controlFlowFlatteningThreshold: 1,
+                    numbersToExpressions: true,
+                    simplify: true,
+                    stringArrayShuffle: true,
+                    splitStrings: true,
+                    stringArrayThreshold: 1
+                });
+                protectedContent = obfuscationResult.getObfuscatedCode();
+            } catch (err) {
+                console.error("Obfuscation error:", err);
+                // Fallback to raw script or handle error? For now, let's keep it null or raw?
+                // Depending on requirement. "Hệ thống phải tự động tạo thêm một phiên bản Obfuscated".
+                // If fails, maybe we should not fail the creation but log it.
+            }
+        }
+
         await db.Module.create({
             name,
             description,
             icon,
             color,
             script,
+            protectedContent,
             category_id: finalCategoryId
         });
 
@@ -126,14 +151,39 @@ const updateModule = async (req, res) => {
             finalCategoryId = newCat.id;
         }
 
-        await db.Module.update({
+        let protectedContent = null;
+        if (script) {
+            try {
+                const obfuscationResult = JavaScriptObfuscator.obfuscate(script, {
+                    compact: true,
+                    controlFlowFlattening: true,
+                    controlFlowFlatteningThreshold: 1,
+                    numbersToExpressions: true,
+                    simplify: true,
+                    stringArrayShuffle: true,
+                    splitStrings: true,
+                    stringArrayThreshold: 1
+                });
+                protectedContent = obfuscationResult.getObfuscatedCode();
+            } catch (err) {
+                console.error("Obfuscation error:", err);
+            }
+        }
+
+        const updateData = {
             name,
             description,
             icon,
             color,
             script,
             category_id: finalCategoryId
-        }, { where: { id } });
+        };
+
+        if (protectedContent) {
+            updateData.protectedContent = protectedContent;
+        }
+
+        await db.Module.update(updateData, { where: { id } });
 
         res.redirect('/admin/modules');
     } catch (error) {
@@ -256,6 +306,45 @@ const getAllModulesAPI = async (req, res) => {
     }
 };
 
+const getClientScript = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const moduleItem = await db.Module.findByPk(id);
+
+        if (!moduleItem) {
+            return res.status(404).json({ success: false, message: 'Module not found' });
+        }
+
+        const contentToEncrypt = moduleItem.protectedContent || moduleItem.script || '';
+
+        // Dynamic Encryption
+        const algorithm = 'aes-256-cbc';
+        const key = process.env.CLIENT_SECRET_KEY; // Must be 32 chars
+        if (!key) {
+            console.error("Missing CLIENT_SECRET_KEY in env");
+            return res.status(500).json({ success: false, message: 'Server configuration error' });
+        }
+
+        // Ensure key is 32 bytes via hashing
+        const keyBuffer = crypto.createHash('sha256').update(String(key)).digest();
+
+        const iv = crypto.randomBytes(16);
+        const cipher = crypto.createCipheriv(algorithm, keyBuffer, iv);
+        let encrypted = cipher.update(contentToEncrypt, 'utf8', 'hex');
+        encrypted += cipher.final('hex');
+
+        res.json({
+            success: true,
+            iv: iv.toString('hex'),
+            content: encrypted
+        });
+
+    } catch (error) {
+        console.error('Get Client Script Error:', error);
+        res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
+};
+
 module.exports = {
     getModules,
     createModule,
@@ -267,5 +356,6 @@ module.exports = {
     updateCategory,
     deleteCategory,
     deleteBulkCategories,
-    getAllModulesAPI
+    getAllModulesAPI,
+    getClientScript
 };

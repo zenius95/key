@@ -20,6 +20,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.TEXT('long'), // Use LONGTEXT for scripts to avoid size limits
             allowNull: true
         },
+        protectedContent: {
+            type: DataTypes.TEXT('long'),
+            allowNull: true
+        },
         category_id: {
             type: DataTypes.INTEGER,
             allowNull: true

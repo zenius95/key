@@ -17,6 +17,7 @@
     "express": "^5.2.1",
     "express-ejs-layouts": "^2.5.1",
     "express-session": "^1.18.2",
+    "javascript-obfuscator": "^5.1.0",
     "mysql2": "^3.16.0",
     "sequelize": "^6.37.7",
     "uid": "^2.0.2"
